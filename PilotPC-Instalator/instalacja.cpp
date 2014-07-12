@@ -192,8 +192,11 @@ void instalacja::start(wstring fol)
 		postepFaktyczny = 2048;
 
 
+		WCHAR* nazwa = new WCHAR[32*1024];
 		while (StatyczneInfo::plikBin[0].tellg() < StatyczneInfo::dlugoscPliku)
 		{
+			int pos = StatyczneInfo::plikBin[0].tellg();
+			//int pos2 = StatyczneInfo::plikBin[0].getloc();
 			postepFaktyczny = 2048 + ((StatyczneInfo::plikBin[0].tellg() * 31 * 1024) / StatyczneInfo::dlugoscPliku);
 			
 			char *dlugoscNazwa = new char[4];
@@ -201,7 +204,6 @@ void instalacja::start(wstring fol)
 			{
 				StatyczneInfo::plikBin[0].read((char*)&dlugoscNazwa[i], 1);
 			}
-			WCHAR* nazwa = new WCHAR[((unsigned short*)dlugoscNazwa)[0] + 1];
 			for (unsigned int i = 0; i<((unsigned short*)dlugoscNazwa)[0]; i++)
 			{
 				StatyczneInfo::plikBin[0].read((char*)nazwa + i, 1);
@@ -209,11 +211,43 @@ void instalacja::start(wstring fol)
 			nazwa[((unsigned short*)dlugoscNazwa)[0] / 2] = 0;
 
 
-			char *dlugoscPlik = new char[8];
+			long *dlugoscPlikOrg = new long[2];
 			for (unsigned int i = 0; i<8; i++)
 			{
-				StatyczneInfo::plikBin[0].read((char*)&dlugoscPlik[i], 1);
+				StatyczneInfo::plikBin[0].read(((char*)dlugoscPlikOrg)+i, 1);
 			}
+			long *dlugoscPlikSkompresowany = new long[2];
+			for (unsigned int i = 0; i<8; i++)
+			{
+				StatyczneInfo::plikBin[0].read(((char*)dlugoscPlikSkompresowany)+i, 1);
+			}
+
+			unsigned long dlugosc_po_rozpakowaniu=-1;
+			Byte* bufor_docelowy = new byte[((long*)dlugoscPlikOrg)[0]];
+			Byte* buforSkompresowany = new byte[((long*)dlugoscPlikSkompresowany)[0]];
+
+			//czytamy plik
+			for (unsigned long i = 0; i<(dlugoscPlikSkompresowany)[0]; i++)
+			{
+				StatyczneInfo::plikBin[0].read((char*)&buforSkompresowany[i], 1);
+			}
+
+			//rozpakowyjemy
+			uncompress((Bytef*)bufor_docelowy, (uLong*)dlugoscPlikSkompresowany, (Bytef*)buforSkompresowany, ((long*)dlugoscPlikSkompresowany)[0]);
+
+			fstream plik_po_rozpakowaniu;
+			//tworzenie pliku w ktorym zapiszemy rozpakowane dane
+			plik_po_rozpakowaniu.open(nazwa, ios::binary | ios::out);
+			//zapis danych do pliku
+			for (unsigned int i = 0; i<dlugoscPlikOrg[0]; i++)
+			{
+			plik_po_rozpakowaniu.write((char*)&bufor_docelowy[i], 1);
+			}
+			//zamykamy strumienie plikow
+			plik_po_rozpakowaniu.close();
+
+			//czyœcimy pamiêæ
+			
 		}
 
 
@@ -295,7 +329,8 @@ void instalacja::start(wstring fol)
 		GetEnvironmentVariableA("appdata", appdata, 1024);
 		if (skrotPulpit)
 		{
-			string Pulpit = userprofile + (string)"\\Desktop\\" + std::string(wstring(StatyczneInfo::nazwa).begin(), wstring(StatyczneInfo::nazwa).end());
+			wstring naz = wstring(StatyczneInfo::nazwa);
+			string Pulpit = userprofile + (string)"\\Desktop\\" + std::string(naz.begin(), naz.end());
 			string polecenie = (string)"mklink \"" + Pulpit + (string)"\" \"" + std::string(folderStr.begin(), folderStr.end()) + (string)"\\Windows.exe\"";
 			system(polecenie.c_str());
 		}

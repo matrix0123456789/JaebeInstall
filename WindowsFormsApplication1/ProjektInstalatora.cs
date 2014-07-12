@@ -52,6 +52,7 @@ namespace WindowsFormsApplication1
                 var strRead = x.OpenRead();
                 /*var buf=new byte[strRead.Length];
                 strRead.Read(buf, 0, (int)strRead.Length);*/
+                bin.Write(strRead.Length);
                 var z = ZLibNet.ZLibCompressor.Compress(strRead);
 
                 bin.Write(z.Length);

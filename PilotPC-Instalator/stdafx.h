@@ -22,6 +22,7 @@
 #include <gdiplus.h>
 #include <commctrl.h>
 #include <fstream>
+#include "zlib.h"
 
 #include "StatyczneInfo.h"
 //#include <versionhelpers.h>

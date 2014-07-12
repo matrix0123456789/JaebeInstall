@@ -7,6 +7,7 @@ public: static WCHAR* nazwa;
 public: static WCHAR* wersja;
 public: static WCHAR* autor;
 public: static WCHAR* licencja;
+public: static WCHAR* plikWykonywalny;
 public:static fstream *plikBin;
 public:static unsigned long dlugoscPliku;
 public:

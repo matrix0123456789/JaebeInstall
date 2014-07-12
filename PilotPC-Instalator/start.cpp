@@ -174,36 +174,6 @@ void wyswietl2(HINSTANCE hInstance)
 
 	wyswietl3(hInstance);
 	return;
-	nrAni = 3;
-	animacjaCzas = GetTickCount();
-	if (instalacja::czyJava())
-		wyswietl3(hInstance);
-	else
-	{
-		//HFONT PilotPCCzcionka = CreateFont(18, 7, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, L"Arial");
-		JavaTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
-			SS_LEFT, 475, 130, 400, 100, hWnd, NULL, hInstance, NULL);
-		SendMessage(JavaTxt, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
-		SetWindowText(JavaTxt, jezyk::napisy[PotrzebnaJava]);
-		JavaNieB = CreateWindowEx(0, L"BUTTON", jezyk::napisy[JavaNie], WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
-			451, 400, 448, 100, hWnd, (HMENU)2003, hInstance, NULL);
-		SendMessage(JavaNieB, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
-		JavaTakB = CreateWindowEx(0, L"BUTTON", jezyk::napisy[JavaTak], WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
-			451, 180, 448, 220, hWnd, (HMENU)2004, hInstance, NULL);
-		SendMessage(JavaTakB, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
-
-		HDC hdcOkno;
-		hdcOkno = GetDC(hWnd);
-		RECT prost;
-		prost.left = 0;
-		prost.top = 500;
-		prost.right = 450;
-		prost.bottom = 650;
-
-
-		FillRect(hdcOkno, &prost, ciemnyTlo3);
-		ReleaseDC(hWnd, hdcOkno);
-	}
 
 }
 void wyswietl3(HINSTANCE hInstance)
@@ -978,13 +948,27 @@ void odpakuj()
 	{
 		StatyczneInfo::plikBin[0].read((char*)&dlugoscLicencja[i], 1);
 	}
-	StatyczneInfo::licencja = new WCHAR[((unsigned short*)dlugoscLicencja)[0]+1];
+	StatyczneInfo::licencja = new WCHAR[((unsigned short*)dlugoscLicencja)[0] + 1];
 	for (unsigned int i = 0; i<((unsigned short*)dlugoscLicencja)[0]; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::licencja + i, 1);
 	}
 
 	StatyczneInfo::licencja[((unsigned short*)dlugoscLicencja)[0] / 2] = 0;
+
+
+	char *dlugoscPlikWyk = new char[4];
+	for (unsigned int i = 0; i<4; i++)
+	{
+		StatyczneInfo::plikBin[0].read((char*)&dlugoscPlikWyk[i], 1);
+	}
+	StatyczneInfo::plikWykonywalny = new WCHAR[((unsigned short*)dlugoscPlikWyk)[0] + 1];
+	for (unsigned int i = 0; i<((unsigned short*)dlugoscPlikWyk)[0]; i++)
+	{
+		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::plikWykonywalny + i, 1);
+	}
+
+	StatyczneInfo::plikWykonywalny[((unsigned short*)dlugoscPlikWyk)[0] / 2] = 0;
 
 	//tworzenie bufora do ktorego zapiszemy dane rozpakowane przez biblioteke zlib
 	//wielkosc bufora dla bezpieczenistwa powinna byc

@@ -14,7 +14,6 @@ public: void instalacja::start(HWND hWnd);
 public: static void instalacja::odinstaluj(HINSTANCE, HWND, HWND);
 public: void __cdecl instalacja::start(void * Args);
 		HWND okno;
-public: static bool czyJava();
 	HWND progressbar;
 	bool systemStart; bool wszyscy; LPCWSTR folder; wstring wfolder;
 	bool skrotPulpit; bool skrotMenuStart;

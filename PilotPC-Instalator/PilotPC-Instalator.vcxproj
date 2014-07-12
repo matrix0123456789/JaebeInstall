@@ -88,12 +88,14 @@
     <ClCompile Include="instalacja.cpp" />
     <ClCompile Include="jezyk.cpp" />
     <ClCompile Include="start.cpp" />
+    <ClCompile Include="StatyczneInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="instalacja.h" />
     <ClInclude Include="jezyk.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="start.h" />
+    <ClInclude Include="StatyczneInfo.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

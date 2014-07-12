@@ -21,5 +21,8 @@
 #include <objidl.h>
 #include <gdiplus.h>
 #include <commctrl.h>
+#include <fstream>
+
+#include "StatyczneInfo.h"
 //#include <versionhelpers.h>
 // TODO: reference additional headers your program requires here

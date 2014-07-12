@@ -20,6 +20,9 @@
     <ClCompile Include="jezyk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="StatyczneInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -35,6 +38,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StatyczneInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

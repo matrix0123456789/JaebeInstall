@@ -5,6 +5,7 @@
 #include <Shlobj.h>
 #include "zlib.h"
 #include <fstream>
+#include "StatyczneInfo.h"
 using namespace Gdiplus;
 HWND przyciskJezyk[3];
 HWND g_hPrzycisk, user1, userWiele, systemStart, skrotP, skrotMS;
@@ -18,6 +19,7 @@ HWND StanInstalacji;
 int logoCzas;
 HWND hProgressBar;
 int myszX, myszY;
+
 bool trwa = false;
 instalacja* ins;
 // Enable Visual Style
@@ -146,7 +148,7 @@ void wyswietl(HINSTANCE hInstance)
 	LicencjaTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
 		SS_LEFT, 475, 130, 400, 300, hWnd, NULL, hInstance, NULL);
 	SendMessage(LicencjaTxt, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
-	SetWindowText(LicencjaTxt, jezyk::napisy[Licencja]);
+	SetWindowText(LicencjaTxt, StatyczneInfo::licencja);
 	LicencjaZaakceptuj = CreateWindowEx(0, L"BUTTON", jezyk::napisy[Zaakceptuj], WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 		451, 500, 448, 149, hWnd, (HMENU)2002, hInstance, NULL);
 	SendMessage(LicencjaZaakceptuj, WM_SETFONT, (WPARAM)PilotPCCzcionka2, 0);
@@ -169,6 +171,9 @@ void przesun(HWND el, DWORD czas, int x, int y, int z, int a)
 }
 void wyswietl2(HINSTANCE hInstance)
 {
+
+	wyswietl3(hInstance);
+	return;
 	nrAni = 3;
 	animacjaCzas = GetTickCount();
 	if (instalacja::czyJava())
@@ -219,7 +224,8 @@ void wyswietl3(HINSTANCE hInstance)
 	folder = CreateWindowEx(0, L"EDIT", NULL, WS_CHILD | WS_VISIBLE,
 		475, 160, 325, 20, hWnd, NULL, hInstance, NULL);
 	SendMessage(folder, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
-	SetWindowText(folder, L"c:\\Program Files\\PilotPC");
+	wstring sciezkaF = wstring(L"c:\\Program Files\\") + wstring(StatyczneInfo::autor) + wstring(L"\\") + wstring(StatyczneInfo::nazwa);
+	SetWindowText(folder, sciezkaF.c_str());
 
 
 	folderButton = CreateWindowEx(0, L"BUTTON", jezyk::napisy[Wybierz], WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
@@ -272,9 +278,9 @@ LONG a, b;
 HWND WyborOdinstaluj, WyborInstaluj, WyborTxt;
 void wybor(HINSTANCE hInstance){
 	HKEY r;
-	
-	a = RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\PilotPC", 0, KEY_READ, &r);
-	b = RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\PilotPC", 0, KEY_READ, &r);
+	wstring klucz = wstring(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\") + wstring(StatyczneInfo::autor) + wstring(StatyczneInfo::nazwa);
+	a = RegOpenKeyEx(HKEY_LOCAL_MACHINE, klucz.c_str(), 0, KEY_READ, &r);
+	b = RegOpenKeyEx(HKEY_CURRENT_USER, klucz.c_str(), 0, KEY_READ, &r);
 
 	//HFONT hNormalFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 	if (a == 0 || b == 0)
@@ -308,7 +314,7 @@ void rysujStałe(HINSTANCE hInstance)
 	HWND JaebeTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
 		SS_LEFT, 165, 10, 449 - 165, 50, hWnd, NULL, hInstance, NULL);
 	SendMessage(JaebeTxt, WM_SETFONT, (WPARAM)JaebeCzcionka, 0);
-	SetWindowText(JaebeTxt, L"Jaebe™");
+	SetWindowText(JaebeTxt, StatyczneInfo::autor);
 	//CopyTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
 	//	SS_LEFT, 30, 630, 300, 50, hWnd, NULL, hInstance, NULL);
 	//SendMessage(CopyTxt, WM_SETFONT, (WPARAM)JaebeCzcionkaCopy, 0);
@@ -316,7 +322,7 @@ void rysujStałe(HINSTANCE hInstance)
 	HWND PilotPCTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
 		SS_LEFT, 20, 80, 300, 40, hWnd, NULL, hInstance, NULL);
 	SendMessage(PilotPCTxt, WM_SETFONT, (WPARAM)PilotPCCzcionka2, 0);
-	SetWindowText(PilotPCTxt, L"PilotPC");
+	SetWindowText(PilotPCTxt, StatyczneInfo::nazwa);
 	HDC hdcOkno;
 	hdcOkno = GetDC(hWnd);
 	RECT prost;
@@ -910,25 +916,75 @@ void przerysuj(HWND msghwnd)
 }
 void odpakuj()
 {
-	fstream plik, plik_po_rozpakowaniu;
 
-	plik.open("c:\\arch.zip", ios::binary | ios::in);
-	if (!plik.is_open())  //blad otwarcia pliku
-		return ;   //koniec programu
+	StatyczneInfo::plikBin[0].open("install.bin", ios::binary | ios::in);
+	if (!StatyczneInfo::plikBin[0].is_open())  //blad otwarcia pliku
+		exit(-1) ;   //koniec programu
 
 	//sprawdzenie dlugosci pliku
-	plik.seekg(0, ios::end);
-	unsigned int dlugosc_pliku = plik.tellg();
-	plik.seekg(0, ios::beg);
+	StatyczneInfo::plikBin[0].seekg(0, ios::end);
+	StatyczneInfo::dlugoscPliku = StatyczneInfo::plikBin[0].tellg();
+	StatyczneInfo::plikBin[0].seekg(0, ios::beg);
+
 
 	//tworzenie bufora do ktorego wczytamy plik
-	char *bufor = new char[dlugosc_pliku];
+	char *dlugoscNagłówka = new char[4];
 
 	//odczytujemy plik bajt po bajcie
-	for (unsigned int i = 0; i<dlugosc_pliku; i++)
+	for (unsigned int i = 0; i<4; i++)
 	{
-		plik.read((char*)&bufor[i], 1);
+		StatyczneInfo::plikBin[0].read((char*)&dlugoscNagłówka[i], 1);
 	}
+
+
+	char *dlugoscNazwa = new char[4];
+	for (unsigned int i = 0; i<4; i++)
+	{
+		StatyczneInfo::plikBin[0].read((char*)&dlugoscNazwa[i], 1);
+	}
+	StatyczneInfo::nazwa = new WCHAR[((unsigned short*)dlugoscNazwa)[0]+1];
+	for (unsigned int i = 0; i<((unsigned short*)dlugoscNazwa)[0]; i++)
+	{
+		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::nazwa + i, 1);
+	}
+	StatyczneInfo::nazwa[((unsigned short*)dlugoscNazwa)[0]/2] = 0;
+
+	char *dlugoscWersja = new char[4];
+	for (unsigned int i = 0; i<4; i++)
+	{
+		StatyczneInfo::plikBin[0].read((char*)&dlugoscWersja[i], 1);
+	}
+	StatyczneInfo::wersja = new WCHAR[((unsigned short*)dlugoscWersja)[0]+1];
+	for (unsigned int i = 0; i<((unsigned short*)dlugoscWersja)[0]; i++)
+	{
+		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::wersja + i, 1);
+	}
+
+	StatyczneInfo::wersja[((unsigned short*)dlugoscWersja)[0]/2] = 0;
+	char *dlugoscAutor = new char[4];
+	for (unsigned int i = 0; i<4; i++)
+	{
+		StatyczneInfo::plikBin[0].read((char*)&dlugoscAutor[i], 1);
+	}
+	StatyczneInfo::autor = new WCHAR[((unsigned short*)dlugoscAutor)[0]+1];
+	for (unsigned int i = 0; i<((unsigned short*)dlugoscAutor)[0]; i++)
+	{
+		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::autor + i, 1);
+	}
+
+	StatyczneInfo::autor[((unsigned short*)dlugoscAutor)[0] / 2] = 0;
+	char *dlugoscLicencja = new char[4];
+	for (unsigned int i = 0; i<4; i++)
+	{
+		StatyczneInfo::plikBin[0].read((char*)&dlugoscLicencja[i], 1);
+	}
+	StatyczneInfo::licencja = new WCHAR[((unsigned short*)dlugoscLicencja)[0]+1];
+	for (unsigned int i = 0; i<((unsigned short*)dlugoscLicencja)[0]; i++)
+	{
+		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::licencja + i, 1);
+	}
+
+	StatyczneInfo::licencja[((unsigned short*)dlugoscLicencja)[0] / 2] = 0;
 
 	//tworzenie bufora do ktorego zapiszemy dane rozpakowane przez biblioteke zlib
 	//wielkosc bufora dla bezpieczenistwa powinna byc
@@ -936,12 +992,12 @@ void odpakuj()
 	//mozna bylo oczywiscie zapisac rozmiar danych przed spakowaniem do pliku
 	//maksymalnie dane mogą mieć wielkość 5000 bajtow
 	//jezeli mamy wiekszy plik to odpowiedni musimy zwiekszyc ta wartosc
-	char * bufor_docelowy = new char[5000];
+	//char * bufor_docelowy = new char[5000];
 
-	unsigned long dlugosc_po_rozpakowaniu;
+	//unsigned long dlugosc_po_rozpakowaniu;
 
 	//rozpakowyjemy
-	uncompress((Bytef*)bufor_docelowy, (uLong*)&dlugosc_po_rozpakowaniu, (Bytef*)bufor, dlugosc_pliku);
+	//uncompress((Bytef*)bufor_docelowy, (uLong*)&dlugosc_po_rozpakowaniu, (Bytef*)bufor, dlugosc_pliku);
 
 	//tworzenie pliku w ktorym zapiszemy rozpakowane dane
 	/*plik_po_rozpakowaniu.open("rozpakowany.txt", ios::binary | ios::out);

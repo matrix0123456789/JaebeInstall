@@ -22,7 +22,6 @@ public: static bool czyJava();
 	int ilePlikow;
 	int ilePlikowGotowe;
 	//WCHAR* lacz(LPCWSTR a, string b);
-	int getHttp(char host[], int hostl, string path, int pathl);
 	~instalacja();
 	void instalacja::pobierz(string nazwa, wstring fold, instalacja*);
 

@@ -4,10 +4,10 @@
     <LocalDebuggerCommandArguments>
     </LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerWorkingDirectory>C:\Users\Mateusz\Documents\GitHub\JaebeInstal\Release\a</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>C:\Users\Mateusz\Documents\GitHub\JaebeInstal\WindowsFormsApplication1\bin\Release\Kreator instalatora wersj</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerWorkingDirectory>C:\Users\Mateusz\Documents\GitHub\JaebeInstal\Release\a</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>C:\Users\Mateusz\Documents\GitHub\JaebeInstal\WindowsFormsApplication1\bin\Release\Kreator instalatora wersj</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

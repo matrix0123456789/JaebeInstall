@@ -52,7 +52,7 @@ HBRUSH ciemnyTlo4;
 HBRUSH ciemnyTlo4B;
 HBRUSH ciemnyTlo5;
 HBRUSH jasnyTlo1;
-HBRUSH jasnyTlo2;
+HBRUSH jasnyTlo2, Szymon1, Szymon2;
 HBRUSH czarny;
 HBRUSH niebieski;
 
@@ -65,6 +65,7 @@ HFONT hNormalFont = CreateFont(18, 0, 0, 0, 0, 0, 0, 0, 0, OUT_DEFAULT_PRECIS, C
 HFONT XCzcionka = CreateFont(15, 7, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, L"Arial");
 void logoAni(HDC);
 void odpakuj();
+void wyswietl2(HINSTANCE hInstance);
 int stringDlugosc(wchar_t* wej)
 {
 	int ret = 0;
@@ -142,7 +143,9 @@ byte nrAni = 0;
 HWND hWnd = NULL;
 HWND LicencjaZaakceptuj, LicencjaTxt, folderButton;
 void wyswietl(HINSTANCE hInstance)
-{//licencja
+{
+	//wyswietl2(hInstance);
+	//licencja
 	nrAni = 2;
 	animacjaCzas = GetTickCount();
 	LicencjaTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
@@ -194,8 +197,10 @@ void wyswietl3(HINSTANCE hInstance)
 	folder = CreateWindowEx(0, L"EDIT", NULL, WS_CHILD | WS_VISIBLE,
 		475, 160, 325, 20, hWnd, NULL, hInstance, NULL);
 	SendMessage(folder, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
-	wstring sciezkaF = wstring(L"c:\\Program Files\\") + wstring(StatyczneInfo::autor) + wstring(L"\\") + wstring(StatyczneInfo::nazwa);
-	SetWindowText(folder, sciezkaF.c_str());
+	//wstring sciezkaF = wstring(L"c:\\Program Files\\") + wstring(StatyczneInfo::autor) + wstring(L"\\") + wstring(StatyczneInfo::nazwa);
+	
+	//SetWindowText(folder, sciezkaF.c_str());
+	SetWindowText(folder, StatyczneInfo::SciezkaDomyslna);
 
 
 	folderButton = CreateWindowEx(0, L"BUTTON", jezyk::napisy[Wybierz], WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
@@ -282,7 +287,7 @@ void rysujStałe(HINSTANCE hInstance)
 	//HFONT hNormalFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 	HFONT JaebeCzcionkaCopy = CreateFont(12, 6, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, L"Arial");
 	HWND JaebeTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
-		SS_LEFT, 165, 10, 449 - 165, 50, hWnd, NULL, hInstance, NULL);
+		SS_LEFT, 65, 10, 449 - 165, 50, hWnd, NULL, hInstance, NULL);
 	SendMessage(JaebeTxt, WM_SETFONT, (WPARAM)JaebeCzcionka, 0);
 	SetWindowText(JaebeTxt, StatyczneInfo::autor);
 	//CopyTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
@@ -384,7 +389,7 @@ void logoAni(HDC hdc){
 		//int czasR = GetTickCount() - logoCzas;
 		//czasR = czasR / 10;
 		int czarMn = 1000 - czasR;
-		if (hbmObraz==NULL)
+		/*if (hbmObraz==NULL)
 		hbmObraz = LoadBitmap(hinstance, MAKEINTRESOURCE(4));
 
 		HDC hdcNowy = CreateCompatibleDC(hdc);
@@ -421,7 +426,7 @@ void logoAni(HDC hdc){
 		DeleteDC(hdcBufor);
 		DeleteBitmap(hbmBuf);
 		DeleteBitmap(hbmOldBuf);
-		DeleteBitmap(hbmOld);
+		DeleteBitmap(hbmOld);*/
 		narysowane = czasR;
 	}
 }
@@ -747,12 +752,12 @@ VOID CALLBACK TimerProc(
 		prostTlo2.top = 450;
 		prostTlo2.right = 25 + (*ins).postepAnim * 400 / (32 * 1024);
 		prostTlo2.bottom = 470;
-		FillRect(GetDC(hWnd), &prostTlo2, jasnyTlo1);
+		FillRect(GetDC(hWnd), &prostTlo2, Szymon1);
 		prostTlo2.left = 25 + (*ins).postepAnim * 400 / (32 * 1024);
 		prostTlo2.top = 450;
 		prostTlo2.right = 425;
 		prostTlo2.bottom = 470;
-		FillRect(GetDC(hWnd), &prostTlo2, ciemnyTlo2);
+		FillRect(GetDC(hWnd), &prostTlo2, Szymon2);
 	}
 	//if (hProgressBar != NULL)
 	//	SendMessage(hProgressBar, PBM_SETPOS, (WPARAM)(*ins).postepFaktyczny, 0);
@@ -887,7 +892,7 @@ void przerysuj(HWND msghwnd)
 void odpakuj()
 {
 
-	StatyczneInfo::plikBin[0].open("install.bin", ios::binary | ios::in);
+	StatyczneInfo::plikBin[0].open("data1.bin", ios::binary | ios::in);
 	if (!StatyczneInfo::plikBin[0].is_open())  //blad otwarcia pliku
 		exit(-1) ;   //koniec programu
 
@@ -970,6 +975,19 @@ void odpakuj()
 
 	StatyczneInfo::plikWykonywalny[((unsigned short*)dlugoscPlikWyk)[0] / 2] = 0;
 
+	char *dlugoscScD = new char[4];
+	for (unsigned int i = 0; i<4; i++)
+	{
+		StatyczneInfo::plikBin[0].read((char*)&dlugoscScD[i], 1);
+	}
+	StatyczneInfo::SciezkaDomyslna = new WCHAR[((unsigned short*)dlugoscScD)[0] + 1];
+	for (unsigned int i = 0; i<((unsigned short*)dlugoscScD)[0]; i++)
+	{
+		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::SciezkaDomyslna + i, 1);
+	}
+
+	StatyczneInfo::SciezkaDomyslna[((unsigned short*)dlugoscScD)[0] / 2] = 0;
+
 	//tworzenie bufora do ktorego zapiszemy dane rozpakowane przez biblioteke zlib
 	//wielkosc bufora dla bezpieczenistwa powinna byc
 	//odpowiednio duza aby rozpakowane dany zmiescily sie
@@ -1028,6 +1046,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR test, INT iCmdShow)
 	ciemnyTlo5 = CreateSolidBrush(RGB(73, 65, 54));
 	jasnyTlo1 = CreateSolidBrush(RGB(225, 220, 210));
 	jasnyTlo2 = CreateSolidBrush(RGB(255, 255, 255));
+	Szymon1 = CreateSolidBrush(RGB(0, 153, 253));
+	Szymon2 = CreateSolidBrush(RGB(30, 75, 104));
 	czarny = CreateSolidBrush(RGB(0, 0, 0));
 	niebieski = CreateSolidBrush(RGB(20, 40, 240));
 	hinstance = hInstance;

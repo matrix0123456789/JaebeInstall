@@ -18,5 +18,3 @@
 1        BITMAP         "Strzalka.bmp"
 2        BITMAP         "Checkbox1.bmp"
 3        BITMAP         "Checkbox2.bmp"
-4        BITMAP         "jaebe.bmp"
-IDI_APP     ICON       "ikona.ico"

@@ -14,11 +14,23 @@ namespace WindowsFormsApplication1
         public string autor;
         public string licencja;
         public string plikWykonywalny = "";
+        public string FolderDom = "";
         public void zapisz()
         {
-            var strumień = new StreamWriter(folderDocelowy + "\\install.bin");
+            for(int i=folderDocelowy.IndexOf('\\',3);i>0;i=folderDocelowy.IndexOf('\\',i+1))
+            {
+                var dir = new DirectoryInfo(folderDocelowy.Substring(0, i));
+                if (!dir.Exists)
+                    dir.Create();
+            }
+            var dir2 = new DirectoryInfo(folderDocelowy);
+            if (!dir2.Exists)
+                dir2.Create();
+            var strumień = new StreamWriter(folderDocelowy + "\\data1.bin");
             var bin = new BinaryWriter(strumień.BaseStream, System.Text.Encoding.Unicode);
-            
+
+            Form1.ProgressMax= liczPliki(new DirectoryInfo(folderŹródłowy));
+
             //zapisywanie metadanych
             bin.Write(nazwa.Length * 2 + 4 + wersja.Length * 2 + 4 + autor.Length * 2 + 4 + licencja.Length * 2 + 4);
 
@@ -32,9 +44,27 @@ namespace WindowsFormsApplication1
             bin.Write(licencja.ToCharArray(), 0, licencja.Length);
             bin.Write(plikWykonywalny.Length * 2);
             bin.Write(plikWykonywalny.ToCharArray(), 0, plikWykonywalny.Length);
+            bin.Write(FolderDom.Length * 2);
+            bin.Write(FolderDom.ToCharArray(), 0, FolderDom.Length);
 
             zapiszFolder(bin, new DirectoryInfo(folderŹródłowy), "");
             strumień.Close();
+            System.IO.File.Copy("install.exe", folderDocelowy + "\\install.exe", true);
+            System.IO.File.Copy("zlib1.dll", folderDocelowy + "\\zlib1.dll", true);
+
+
+        }
+
+        private int liczPliki(DirectoryInfo folder)
+        {
+            var ret = folder.GetFiles().Length;
+             var foldery = folder.GetDirectories();
+             foreach (var x in foldery)
+             {
+                 ret += liczPliki(x);
+
+             }
+             return ret;
 
         }
         void zapiszFolder(BinaryWriter bin, DirectoryInfo folder, string path)
@@ -43,6 +73,11 @@ namespace WindowsFormsApplication1
             var pliki = folder.GetFiles();
             foreach (var x in pliki)
             {
+                if (x.FullName.Equals(folderDocelowy + "\\data1.bin", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    Form1.Progress++; 
+                    continue;
+                }
                 var nazwaf = path + x.Name;
                 bin.Write(nazwaf.Length * 2);
                 //bin.Flush();
@@ -62,6 +97,7 @@ namespace WindowsFormsApplication1
                 for (long i = 0; i < z.Length; i++)
                     bin.BaseStream.WriteByte((byte)z.ReadByte());
                 // strumień.BaseStream.Flush();
+                Form1.Progress++;
             }
             var foldery = folder.GetDirectories();
             foreach (var x in foldery)

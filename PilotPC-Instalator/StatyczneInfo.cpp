@@ -15,5 +15,6 @@ WCHAR* StatyczneInfo::wersja = L"TestTest";
 WCHAR* StatyczneInfo::autor = L"TestTest";
 WCHAR* StatyczneInfo::licencja = L"TestTest";
 WCHAR* StatyczneInfo::plikWykonywalny = L"";
+WCHAR* StatyczneInfo::SciezkaDomyslna = L"C:\Program Files\Program";
 unsigned long StatyczneInfo::dlugoscPliku = 0xffffffffffffffff;
 fstream* StatyczneInfo::plikBin = new fstream[1];

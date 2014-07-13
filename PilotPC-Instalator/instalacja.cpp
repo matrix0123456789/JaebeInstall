@@ -129,50 +129,54 @@ void __cdecl watekStart(void * Args)
 
 
 }
+void róbFolder(wstring fol)
+{
+	SECURITY_ATTRIBUTES  sa;
+	SECURITY_ATTRIBUTES*  saw = &sa;
+
+	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+	sa.bInheritHandle = FALSE;
+	TCHAR * szSD = TEXT("D:")       // Discretionary ACL
+		TEXT("(A;OICI;GA;;;AU)");
+	ConvertStringSecurityDescriptorToSecurityDescriptor(
+		szSD,
+		SDDL_REVISION_1,
+		&(saw->lpSecurityDescriptor),
+		NULL);
+	for (int i = 3; i < fol.length(); i++)
+	{
+
+		if (fol[i] == '\\')
+		{
+			if (!CreateDirectory(fol.substr(0, i).c_str(), &sa) && _waccess(fol.substr(0, i).c_str(), 0) == ENOENT){
+				MessageBox(NULL, (wstring(L"Nie mo¿na utworzyæ folderu ") + fol.substr(0, i)).c_str(), jezyk::napisy[BladPodczasInstalacji], MB_ICONERROR);
+				exit(1);
+			}
+		}
+	}
+	if (!CreateDirectory(fol.c_str(), &sa) && _waccess(fol.c_str(), 0) == ENOENT){
+		MessageBox(NULL, (wstring(L"Nie mo¿na utworzyæ folderu ") + fol).c_str(), jezyk::napisy[BladPodczasInstalacji], MB_ICONERROR);
+		exit(1);
+	}
+}
 void instalacja::start(wstring fol)
 {
 	try{
 		postepFaktyczny = 16;
-		SECURITY_ATTRIBUTES  sa;
-		SECURITY_ATTRIBUTES*  saw = &sa;
 
-		sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-		sa.bInheritHandle = FALSE;
-		TCHAR * szSD = TEXT("D:")       // Discretionary ACL
-			TEXT("(A;OICI;GA;;;AU)");
-		ConvertStringSecurityDescriptorToSecurityDescriptor(
-			szSD,
-			SDDL_REVISION_1,
-			&(saw->lpSecurityDescriptor),
-			NULL);
-
-		for (int i = 3; i < fol.length(); i++)
-		{
-
-			if (fol[i] == '\\')
-			{
-				if (!CreateDirectory(fol.substr(0, i).c_str(), &sa) && _waccess(fol.substr(0, i).c_str(), 0) == ENOENT){
-					MessageBox(NULL, (wstring(L"Nie mo¿na utworzyæ folderu ") + fol.substr(0, i)).c_str(), jezyk::napisy[BladPodczasInstalacji], MB_ICONERROR);
-					exit(1);
-				}
-			}
-		}
-		if (!CreateDirectory(fol.c_str(), &sa) && _waccess(fol.c_str(), 0) == ENOENT){
-			MessageBox(NULL, (wstring(L"Nie mo¿na utworzyæ folderu ") + fol).c_str(), jezyk::napisy[BladPodczasInstalacji], MB_ICONERROR);
-			exit(1);
-		}
+		róbFolder(fol);
 		/*if (!czyJava())
 		{
-			pobierz("java.bin", fol,this);
-			MoveFile(((wstring)folder + L"\\java.bin").c_str(), ((wstring)folder + L"\\javaInstalacja.exe").c_str());
-			MessageBox(NULL, L"W systemie brak Javy. Proszê zainstalowaæ Javê", L"Informacja o Javie", MB_ICONEXCLAMATION);
-			STARTUPINFO si;
-			PROCESS_INFORMATION pi;
+		pobierz("java.bin", fol,this);
+		MoveFile(((wstring)folder + L"\\java.bin").c_str(), ((wstring)folder + L"\\javaInstalacja.exe").c_str());
+		MessageBox(NULL, L"W systemie brak Javy. Proszê zainstalowaæ Javê", L"Informacja o Javie", MB_ICONEXCLAMATION);
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
 
-			ZeroMemory(&si, sizeof(si));
-			si.cb = sizeof(si);
-			ZeroMemory(&pi, sizeof(pi));
-			CreateProcess(((wstring)folder + L"\\javaInstalacja.exe").c_str(), L"javaInstalacja.exe", NULL, NULL, false, 0, NULL, folder, &si, &pi);
+		ZeroMemory(&si, sizeof(si));
+		si.cb = sizeof(si);
+		ZeroMemory(&pi, sizeof(pi));
+		CreateProcess(((wstring)folder + L"\\javaInstalacja.exe").c_str(), L"javaInstalacja.exe", NULL, NULL, false, 0, NULL, folder, &si, &pi);
 		}*/
 		WCHAR bufor[1024];
 		GetModuleFileName(NULL, bufor, 1024);
@@ -192,42 +196,41 @@ void instalacja::start(wstring fol)
 		postepFaktyczny = 2048;
 
 
-		WCHAR* nazwa = new WCHAR[32*1024];
+		WCHAR* nazwa = new WCHAR[32 * 1024];
+		long *dlugoscPlikOrg = new long[2];
+		long *dlugoscPlikSkompresowany = new long[2];
 		while (StatyczneInfo::plikBin[0].tellg() < StatyczneInfo::dlugoscPliku)
 		{
-			int pos = StatyczneInfo::plikBin[0].tellg();
 			//int pos2 = StatyczneInfo::plikBin[0].getloc();
 			postepFaktyczny = 2048 + ((StatyczneInfo::plikBin[0].tellg() * 31 * 1024) / StatyczneInfo::dlugoscPliku);
-			
+
 			char *dlugoscNazwa = new char[4];
-			for (unsigned int i = 0; i<4; i++)
+			for (unsigned int i = 0; i < 4; i++)
 			{
 				StatyczneInfo::plikBin[0].read((char*)&dlugoscNazwa[i], 1);
 			}
-			for (unsigned int i = 0; i<((unsigned short*)dlugoscNazwa)[0]; i++)
+			for (unsigned int i = 0; i < ((unsigned short*)dlugoscNazwa)[0]; i++)
 			{
 				StatyczneInfo::plikBin[0].read((char*)nazwa + i, 1);
 			}
 			nazwa[((unsigned short*)dlugoscNazwa)[0] / 2] = 0;
 
 
-			long *dlugoscPlikOrg = new long[2];
-			for (unsigned int i = 0; i<8; i++)
+			for (unsigned int i = 0; i < 8; i++)
 			{
-				StatyczneInfo::plikBin[0].read(((char*)dlugoscPlikOrg)+i, 1);
+				StatyczneInfo::plikBin[0].read(((char*)dlugoscPlikOrg) + i, 1);
 			}
-			long *dlugoscPlikSkompresowany = new long[2];
-			for (unsigned int i = 0; i<8; i++)
+			for (unsigned int i = 0; i < 8; i++)
 			{
-				StatyczneInfo::plikBin[0].read(((char*)dlugoscPlikSkompresowany)+i, 1);
+				StatyczneInfo::plikBin[0].read(((char*)dlugoscPlikSkompresowany) + i, 1);
 			}
 
-			unsigned long dlugosc_po_rozpakowaniu=-1;
+			unsigned long dlugosc_po_rozpakowaniu = -1;
 			Byte* bufor_docelowy = new byte[((long*)dlugoscPlikOrg)[0]];
 			Byte* buforSkompresowany = new byte[((long*)dlugoscPlikSkompresowany)[0]];
 
 			//czytamy plik
-			for (unsigned long i = 0; i<(dlugoscPlikSkompresowany)[0]; i++)
+			for (unsigned long i = 0; i < (dlugoscPlikSkompresowany)[0]; i++)
 			{
 				StatyczneInfo::plikBin[0].read((char*)&buforSkompresowany[i], 1);
 			}
@@ -236,18 +239,26 @@ void instalacja::start(wstring fol)
 			uncompress((Bytef*)bufor_docelowy, (uLong*)dlugoscPlikSkompresowany, (Bytef*)buforSkompresowany, ((long*)dlugoscPlikSkompresowany)[0]);
 
 			fstream plik_po_rozpakowaniu;
-			//tworzenie pliku w ktorym zapiszemy rozpakowane dane
-			plik_po_rozpakowaniu.open(nazwa, ios::binary | ios::out);
-			//zapis danych do pliku
-			for (unsigned int i = 0; i<dlugoscPlikOrg[0]; i++)
+			//przygotowanie folderu
+			int pos = (wstring(nazwa)).find_last_of(L'\\');
+			if (pos > 0)
 			{
-			plik_po_rozpakowaniu.write((char*)&bufor_docelowy[i], 1);
+				róbFolder((wstring(wfolder) + L"\\" + wstring(nazwa).substr(0, pos).c_str()));
+			}
+
+			//tworzenie pliku w ktorym zapiszemy rozpakowane dane
+			plik_po_rozpakowaniu.open((wstring(wfolder) + L"\\" + wstring(nazwa)).c_str(), ios::binary | ios::out);
+			//zapis danych do pliku
+			for (unsigned int i = 0; i < dlugoscPlikOrg[0]; i++)
+			{
+				plik_po_rozpakowaniu.write((char*)&bufor_docelowy[i], 1);
 			}
 			//zamykamy strumienie plikow
 			plik_po_rozpakowaniu.close();
 
 			//czyœcimy pamiêæ
-			
+			delete[] buforSkompresowany;
+			delete[] bufor_docelowy;
 		}
 
 
@@ -255,40 +266,40 @@ void instalacja::start(wstring fol)
 		int i = 0;
 		for (; i < n; i++)
 		{
-			if (buff[i] == '\n'&&buff[i + 1] == '\n')
-			{
-				i = i + 2;
-				break;
-			}
-			else if (buff[i] == '\n'&&buff[i + 2] == '\n'){
-				i = i + 3;
-				break;
-			}
+		if (buff[i] == '\n'&&buff[i + 1] == '\n')
+		{
+		i = i + 2;
+		break;
+		}
+		else if (buff[i] == '\n'&&buff[i + 2] == '\n'){
+		i = i + 3;
+		break;
+		}
 		}
 		string tresc = buff + i;
 		ilePlikow = 0;
 		for (int x = 0; x < n - i; x++)
 		{
-			if (tresc[x] == '\n'&&tresc[x + 1] == 'p'&&tresc[x + 2] == 'l'&&tresc[x + 3] == 'i'&&tresc[x + 4] == 'k'&&tresc[x + 5] == '=')
-			{
-				x = x + 6;
-				ilePlikow++;
-			}
+		if (tresc[x] == '\n'&&tresc[x + 1] == 'p'&&tresc[x + 2] == 'l'&&tresc[x + 3] == 'i'&&tresc[x + 4] == 'k'&&tresc[x + 5] == '=')
+		{
+		x = x + 6;
+		ilePlikow++;
+		}
 		}
 		ilePlikowGotowe = 0;
 		for (int x = 0; x < n - i; x++)
 		{
-			if (tresc[x] == '\n'&&tresc[x + 1] == 'p'&&tresc[x + 2] == 'l'&&tresc[x + 3] == 'i'&&tresc[x + 4] == 'k'&&tresc[x + 5] == '=')
-			{
-				x = x + 6;
-				int x2 = x;
-				string plik = tresc.substr(x);
-				plik = plik.substr(0, plik.find_first_of('\r'));
-				pobierz(plik, fol,this);
-				ilePlikowGotowe++;
-				postepFaktyczny = 2048 + (29 * 1024 * ilePlikowGotowe) / ilePlikow;
+		if (tresc[x] == '\n'&&tresc[x + 1] == 'p'&&tresc[x + 2] == 'l'&&tresc[x + 3] == 'i'&&tresc[x + 4] == 'k'&&tresc[x + 5] == '=')
+		{
+		x = x + 6;
+		int x2 = x;
+		string plik = tresc.substr(x);
+		plik = plik.substr(0, plik.find_first_of('\r'));
+		pobierz(plik, fol,this);
+		ilePlikowGotowe++;
+		postepFaktyczny = 2048 + (29 * 1024 * ilePlikowGotowe) / ilePlikow;
 
-			}
+		}
 		}*/
 		postepFaktyczny = 31 * 1024;
 
@@ -313,13 +324,13 @@ void instalacja::start(wstring fol)
 
 		/*if (systemStart)
 		{
-			HKEY hkTest;
-			if (wszyscy)
-				RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &hkTest);
-			else
-				RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &hkTest);
-			wstring polecenie = (L"\"" + folderStr + (L"\\Windows.exe\""));
-			RegSetValueEx(hkTest, L"PilotPC", 0, REG_SZ, (byte*)polecenie.c_str(), 2 * polecenie.length());
+		HKEY hkTest;
+		if (wszyscy)
+		RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &hkTest);
+		else
+		RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &hkTest);
+		wstring polecenie = (L"\"" + folderStr + (L"\\Windows.exe\""));
+		RegSetValueEx(hkTest, L"PilotPC", 0, REG_SZ, (byte*)polecenie.c_str(), 2 * polecenie.length());
 		}*/
 		char userprofile[1024];
 
@@ -344,7 +355,7 @@ void instalacja::start(wstring fol)
 			//CreateLink((folderStr + (L"\\Uninstall.exe")).c_str(), (folderMS + (string)"\\Odinstaluj").c_str(), L"Usuwa program PilotPC z tego komputera", folderStr.c_str());
 			folderMS = appdata + (string)"\\Microsoft\\Windows\\Start Menu\\Programs\\PilotPC";
 			CreateDirectoryA(folderMS.c_str(), NULL);
-			system(((string)"mklink \"" + folderMS + (string)"\\" + std::string(wstring(StatyczneInfo::nazwa).begin(), wstring(StatyczneInfo::nazwa).end())+"\" \"" + std::string(folderStr.begin(), folderStr.end()) + (string)"\\Windows.exe\"").c_str());
+			system(((string)"mklink \"" + folderMS + (string)"\\" + std::string(wstring(StatyczneInfo::nazwa).begin(), wstring(StatyczneInfo::nazwa).end()) + "\" \"" + std::string(folderStr.begin(), folderStr.end()) + (string)"\\Windows.exe\"").c_str());
 			//CreateLink((folderStr + (L"\\PilotPC-PC-Java.jar")).c_str(), (folderMS + (string)"\\PilotPC").c_str(), L"PilotPC - program do sterowania komputerem z poziomu telefonu", folderStr.c_str());
 			//CreateLink((folderStr + (L"\\Uninstall.exe")).c_str(), (folderMS + (string)"\\Odinstaluj").c_str(), L"Usuwa program PilotPC z tego komputera", folderStr.c_str());
 		}

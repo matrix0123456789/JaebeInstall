@@ -1,9 +1,31 @@
-﻿Build started 2014-07-12 15:41:51.
+﻿Build started 2014-08-21 20:47:09.
      1>Project "C:\Users\Mateusz\Documents\GitHub\JaebeInstal\PilotPC-Instalator\PilotPC-Instalator.vcxproj" on node 2 (Build target(s)).
-     1>Link:
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /Ox /Oi /Ot /Oy- /D _USING_V110_SDK71_ /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy- /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt start.cpp
+         start.cpp
+     1>c:\users\mateusz\documents\github\jaebeinstal\pilotpc-instalator\start.h(9): warning C4007: 'WinMain' : must be '__stdcall'
+     1>start.cpp(257): warning C4007: 'WinMain' : must be '__stdcall'
+     1>start.cpp(389): warning C4101: 'buf' : unreferenced local variable
+     1>start.cpp(920): warning C4244: '=' : conversion from 'std::streamoff' to 'unsigned long', possible loss of data
+     1>start.cpp(1197): warning C4129: 'p' : unrecognized character escape sequence
+     1>start.cpp(1197): warning C4129: 'P' : unrecognized character escape sequence
+     1>start.cpp(1200): warning C4018: '<' : signed/unsigned mismatch
+     1>start.cpp(1211): warning C4018: '<' : signed/unsigned mismatch
+     1>start.cpp(1245): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+     1>start.cpp(1342): warning C4101: 'buf' : unreferenced local variable
+     1>start.cpp(1482): warning C4800: 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
+     1>start.cpp(1357): warning C4101: 'xPos' : unreferenced local variable
+     1>start.cpp(1357): warning C4101: 'yPos' : unreferenced local variable
+     1>c:\users\mateusz\documents\github\jaebeinstal\pilotpc-instalator\start.cpp(1637): warning C4715: 'WndProc' : not all control paths return a value
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Mateusz\Documents\GitHub\JaebeInstal\Release\a\PilotPC-Instalator.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Mateusz\Documents\GitHub\JaebeInstal\Release\a\PilotPC-Instalator.pdb" /SUBSYSTEM:WINDOWS,"5.01" /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Mateusz\Documents\GitHub\JaebeInstal\Release\a\PilotPC-Instalator.lib" /MACHINE:X86 /SAFESEH resource.rc
+         Release\instalacja.obj
+         Release\jezyk.obj
+         Release\start.obj
+         Release\StatyczneInfo.obj
          PilotPC-Instalator.vcxproj -> C:\Users\Mateusz\Documents\GitHub\JaebeInstal\Release\a\PilotPC-Instalator.exe
      1>Done Building Project "C:\Users\Mateusz\Documents\GitHub\JaebeInstal\PilotPC-Instalator\PilotPC-Instalator.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:01.49
+Time Elapsed 00:00:03.86

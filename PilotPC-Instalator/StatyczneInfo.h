@@ -11,6 +11,10 @@ public: static WCHAR* plikWykonywalny;
 public: static WCHAR* SciezkaDomyslna;
 public:static fstream *plikBin;
 public:static unsigned long dlugoscPliku;
+public: static bool otwartyPlik;
+public:static int otwartyPlikId;
+public:static HBITMAP obrazek;
+public:static BITMAPINFO obrazekInfo;
 public:
 	StatyczneInfo();
 	~StatyczneInfo();

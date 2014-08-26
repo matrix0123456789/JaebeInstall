@@ -20,7 +20,7 @@ void jezyk::nazwyLoad()
 jezyk::~jezyk()
 {
 }
-wchar_t* jezyk::napisy[18];
+wchar_t* jezyk::napisy[30];
 void jezyk::laduj(jezyki a)
 {
 	switch (a)
@@ -44,7 +44,7 @@ void jezyk::laduj(jezyki a)
 		napisy[n::NieMoznaUtworzycPliku] = L"Nie można utworzyć pliku.";
 		napisy[n::Usunieto] = L"Usunięto";
 		napisy[n::WymaganeUprawneiniaAdministratora] = L"Wymagane uprawnienia administratora";
-		napisy[n::Zaakceptuj] = L"Zaakceptuj";
+		napisy[n::Zaakceptuj] = napisy[n::Instaluj];
 		napisy[n::Licencja] = L"Postanowienia licencji wkrótce...";
 		napisy[n::PotrzebnaJava] = L"Do działania programu wymagana jest instalacja Javy.";
 		napisy[n::JavaTak] = L"Zainstaluj Javę i kontynuuj";
@@ -70,7 +70,7 @@ void jezyk::laduj(jezyki a)
 		napisy[n::NieMoznaUtworzycPliku] = L"Creating file error";
 		napisy[n::Usunieto] = L"Removing done";
 		napisy[n::WymaganeUprawneiniaAdministratora] = L"Access denied";
-		napisy[n::Zaakceptuj] = L"Accept";
+		napisy[n::Zaakceptuj] = napisy[n::Instaluj];
 		napisy[n::Licencja] = L"Licence coming soon...";
 		napisy[n::PotrzebnaJava] = L"This program need Java";
 		napisy[n::JavaTak] = L"Install Java and continue";
@@ -96,7 +96,7 @@ void jezyk::laduj(jezyki a)
 		napisy[n::NieMoznaUtworzycPliku] = L"Невозможно создать файл.";
 		napisy[n::Usunieto] = L"Удалено";
 		napisy[n::WymaganeUprawneiniaAdministratora] = L"Разрешение администратора требуется";
-		napisy[n::Zaakceptuj] = L"Примите";
+		napisy[n::Zaakceptuj] = napisy[n::Instaluj];
 		napisy[n::Licencja] = L"Postanowienia licencji wkrótce...";
 		napisy[n::PotrzebnaJava] = L"Чтобы запустить программу, необходимую для установки Java.";
 		napisy[n::JavaTak] = L"Установите Java и продолжить";

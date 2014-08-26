@@ -46,6 +46,12 @@
             this.label8 = new System.Windows.Forms.Label();
             this.FolDom = new System.Windows.Forms.TextBox();
             this.InnyFolDom = new System.Windows.Forms.CheckBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.coIleDzieli = new System.Windows.Forms.TextBox();
+            this.checkObrazek = new System.Windows.Forms.CheckBox();
+            this.ObrPole = new System.Windows.Forms.TextBox();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // FolSrc
@@ -161,10 +167,10 @@
             this.Licencja.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.Licencja.Location = new System.Drawing.Point(161, 211);
+            this.Licencja.Location = new System.Drawing.Point(161, 262);
             this.Licencja.Multiline = true;
             this.Licencja.Name = "Licencja";
-            this.Licencja.Size = new System.Drawing.Size(536, 197);
+            this.Licencja.Size = new System.Drawing.Size(536, 146);
             this.Licencja.TabIndex = 10;
             this.Licencja.Text = "Zabrania się kopiowania etc.";
             // 
@@ -201,9 +207,9 @@
             this.label8.AutoSize = true;
             this.label8.Location = new System.Drawing.Point(6, 214);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(47, 13);
+            this.label8.Size = new System.Drawing.Size(99, 13);
             this.label8.TabIndex = 14;
-            this.label8.Text = "Licencja";
+            this.label8.Text = "Co ile bajtów dzielić";
             // 
             // FolDom
             // 
@@ -227,11 +233,77 @@
             this.InnyFolDom.UseVisualStyleBackColor = true;
             this.InnyFolDom.CheckedChanged += new System.EventHandler(this.InnyFolDom_CheckedChanged);
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 268);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(47, 13);
+            this.label6.TabIndex = 17;
+            this.label6.Text = "Licencja";
+            // 
+            // coIleDzieli
+            // 
+            this.coIleDzieli.Location = new System.Drawing.Point(161, 211);
+            this.coIleDzieli.Name = "coIleDzieli";
+            this.coIleDzieli.Size = new System.Drawing.Size(536, 20);
+            this.coIleDzieli.TabIndex = 18;
+            this.coIleDzieli.Text = "1000000000";
+            // 
+            // checkObrazek
+            // 
+            this.checkObrazek.AutoSize = true;
+            this.checkObrazek.Location = new System.Drawing.Point(9, 239);
+            this.checkObrazek.Name = "checkObrazek";
+            this.checkObrazek.Size = new System.Drawing.Size(66, 17);
+            this.checkObrazek.TabIndex = 19;
+            this.checkObrazek.Text = "Obrazek";
+            this.checkObrazek.UseVisualStyleBackColor = true;
+            this.checkObrazek.CheckedChanged += new System.EventHandler(this.checkObrazek_CheckedChanged);
+            // 
+            // ObrPole
+            // 
+            this.ObrPole.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ObrPole.Enabled = false;
+            this.ObrPole.Location = new System.Drawing.Point(161, 236);
+            this.ObrPole.Name = "ObrPole";
+            this.ObrPole.Size = new System.Drawing.Size(441, 20);
+            this.ObrPole.TabIndex = 20;
+            // 
+            // button2
+            // 
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button2.Location = new System.Drawing.Point(608, 236);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(89, 20);
+            this.button2.TabIndex = 21;
+            this.button2.Text = "Wybierz plik";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button3
+            // 
+            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button3.Location = new System.Drawing.Point(9, 356);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(146, 23);
+            this.button3.TabIndex = 22;
+            this.button3.Text = "Testuj";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(709, 442);
+            this.Controls.Add(this.button3);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.ObrPole);
+            this.Controls.Add(this.checkObrazek);
+            this.Controls.Add(this.coIleDzieli);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.InnyFolDom);
             this.Controls.Add(this.FolDom);
             this.Controls.Add(this.label8);
@@ -253,6 +325,8 @@
             this.MinimumSize = new System.Drawing.Size(305, 263);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -278,6 +352,12 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox FolDom;
         private System.Windows.Forms.CheckBox InnyFolDom;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox coIleDzieli;
+        private System.Windows.Forms.CheckBox checkObrazek;
+        private System.Windows.Forms.TextBox ObrPole;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button3;
     }
 }
 

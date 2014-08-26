@@ -17,7 +17,6 @@ HWND folder;
 HWND FolderTxt;
 HWND StanInstalacji;
 int logoCzas;
-HWND hProgressBar;
 int myszX, myszY;
 
 bool trwa = false;
@@ -99,7 +98,7 @@ VOID OnPaint(HDC hdc)
 {
 
 	logoAni(hdc);
-	
+
 	RECT prost;
 	prost.left = 0;
 	prost.top = 500;
@@ -144,17 +143,24 @@ HWND hWnd = NULL;
 HWND LicencjaZaakceptuj, LicencjaTxt, folderButton;
 void wyswietl(HINSTANCE hInstance)
 {
-	//wyswietl2(hInstance);
+	DWORD dlugosc = GetWindowTextLength(folder);
+	LPWSTR Bufor = (LPWSTR)GlobalAlloc(GPTR, dlugosc * 2 + 2);
+	GetWindowText(folder, Bufor, dlugosc + 2);
+	trwa = true;
+	//Bufor[dlugosc] = 0;
+	//DestroyWindow(LicencjaZaakceptuj);
+	//DestroyWindow(LicencjaTxt);
+	wyswietl2(hinstance);
 	//licencja
-	nrAni = 2;
+	nrAni = 4;
 	animacjaCzas = GetTickCount();
-	LicencjaTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
+	/*LicencjaTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
 		SS_LEFT, 475, 130, 400, 300, hWnd, NULL, hInstance, NULL);
 	SendMessage(LicencjaTxt, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
 	SetWindowText(LicencjaTxt, StatyczneInfo::licencja);
 	LicencjaZaakceptuj = CreateWindowEx(0, L"BUTTON", jezyk::napisy[Zaakceptuj], WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 		451, 500, 448, 149, hWnd, (HMENU)2002, hInstance, NULL);
-	SendMessage(LicencjaZaakceptuj, WM_SETFONT, (WPARAM)PilotPCCzcionka2, 0);
+	SendMessage(LicencjaZaakceptuj, WM_SETFONT, (WPARAM)PilotPCCzcionka2, 0);*/
 }
 HWND JavaTxt, JavaTakB, JavaNieB;
 int* animowane = new int[1024, 5];
@@ -198,7 +204,7 @@ void wyswietl3(HINSTANCE hInstance)
 		475, 160, 325, 20, hWnd, NULL, hInstance, NULL);
 	SendMessage(folder, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
 	//wstring sciezkaF = wstring(L"c:\\Program Files\\") + wstring(StatyczneInfo::autor) + wstring(L"\\") + wstring(StatyczneInfo::nazwa);
-	
+
 	//SetWindowText(folder, sciezkaF.c_str());
 	SetWindowText(folder, StatyczneInfo::SciezkaDomyslna);
 
@@ -286,18 +292,24 @@ void rysujStałe(HINSTANCE hInstance)
 {
 	//HFONT hNormalFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 	HFONT JaebeCzcionkaCopy = CreateFont(12, 6, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, L"Arial");
+
+	if (StatyczneInfo::obrazek == NULL){
 	HWND JaebeTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
 		SS_LEFT, 65, 10, 449 - 165, 50, hWnd, NULL, hInstance, NULL);
 	SendMessage(JaebeTxt, WM_SETFONT, (WPARAM)JaebeCzcionka, 0);
-	SetWindowText(JaebeTxt, StatyczneInfo::autor);
-	//CopyTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
-	//	SS_LEFT, 30, 630, 300, 50, hWnd, NULL, hInstance, NULL);
-	//SendMessage(CopyTxt, WM_SETFONT, (WPARAM)JaebeCzcionkaCopy, 0);
-	//SetWindowText(CopyTxt, L"©");
-	HWND PilotPCTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
-		SS_LEFT, 20, 80, 300, 40, hWnd, NULL, hInstance, NULL);
-	SendMessage(PilotPCTxt, WM_SETFONT, (WPARAM)PilotPCCzcionka2, 0);
-	SetWindowText(PilotPCTxt, StatyczneInfo::nazwa);
+
+		SetWindowText(JaebeTxt, StatyczneInfo::autor);
+		//CopyTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
+		//	SS_LEFT, 30, 630, 300, 50, hWnd, NULL, hInstance, NULL);
+		//SendMessage(CopyTxt, WM_SETFONT, (WPARAM)JaebeCzcionkaCopy, 0);
+		//SetWindowText(CopyTxt, L"©");
+		HWND PilotPCTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
+			SS_LEFT, 20, 80, 300, 40, hWnd, NULL, hInstance, NULL);
+		SendMessage(PilotPCTxt, WM_SETFONT, (WPARAM)PilotPCCzcionka2, 0);
+
+
+		SetWindowText(PilotPCTxt, StatyczneInfo::nazwa);
+	}
 	HDC hdcOkno;
 	hdcOkno = GetDC(hWnd);
 	RECT prost;
@@ -308,7 +320,6 @@ void rysujStałe(HINSTANCE hInstance)
 
 
 	FillRect(hdcOkno, &prost, ciemnyTlo3);
-	ReleaseDC(hWnd, hdcOkno);
 
 	przyciskX = CreateWindowEx(0, L"BUTTON", L"X", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 		424, 1, 25, 25, hWnd, (HMENU)1999, hInstance, NULL);
@@ -316,6 +327,14 @@ void rysujStałe(HINSTANCE hInstance)
 	przyciskMin = CreateWindowEx(0, L"BUTTON", L"_", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 		399, 1, 25, 25, hWnd, (HMENU)1998, hInstance, NULL);
 	SendMessage(przyciskMin, WM_SETFONT, (WPARAM)XCzcionka, 0);
+
+	if (StatyczneInfo::obrazek != NULL){
+		HDC hdcNowy = CreateCompatibleDC(hdcOkno);
+		HBITMAP hbmOld = (HBITMAP)SelectObject(hdcNowy, StatyczneInfo::obrazek);
+
+		BitBlt(hdcOkno, 0, 0, StatyczneInfo::obrazekInfo.bmiHeader.biWidth, StatyczneInfo::obrazekInfo.bmiHeader.biHeight, hdcNowy, 0, 0, SRCCOPY);
+	}
+	ReleaseDC(hWnd, hdcOkno);
 }
 
 HFONT jezykCzcionka = CreateFont(20, 8, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, L"Arial");
@@ -362,6 +381,26 @@ void drawButtonRed(HDC hDC, UINT itemState, HWND hwnd, HBRUSH zaznaczone, HBRUSH
 		FillRect(hDC, &prost, niezaznaczone);
 
 	}
+	if (StatyczneInfo::obrazek != NULL)
+	{
+
+		if (hwnd == przyciskMin&&StatyczneInfo::obrazekInfo.bmiHeader.biWidth>399)
+		{
+			HDC hdcNowy = CreateCompatibleDC(hDC);
+			HBITMAP hbmOld = (HBITMAP)SelectObject(hdcNowy, StatyczneInfo::obrazek);
+
+			BitBlt(hDC, 0, 0, StatyczneInfo::obrazekInfo.bmiHeader.biWidth, StatyczneInfo::obrazekInfo.bmiHeader.biHeight, hdcNowy, 399, 0, SRCCOPY);
+
+		}
+		if (hwnd == przyciskX&&StatyczneInfo::obrazekInfo.bmiHeader.biWidth>424)
+		{
+
+			HDC hdcNowy = CreateCompatibleDC(hDC);
+			HBITMAP hbmOld = (HBITMAP)SelectObject(hdcNowy, StatyczneInfo::obrazek);
+
+			BitBlt(hDC, 2, 2, 12, 12, hdcNowy, 5, 6, SRCCOPY);
+		}
+	}
 	RECT rc;
 	GetClientRect(hwnd, &rc);
 
@@ -376,14 +415,16 @@ void drawButtonRed(HDC hDC, UINT itemState, HWND hwnd, HBRUSH zaznaczone, HBRUSH
 
 	SetTextColor(hDC, RGB(255, 255, 255));
 	DrawText(hDC, txt, Txtlen, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+	ReleaseDC(hwnd, hDC);
 }
 void drawButtonRed(DRAWITEMSTRUCT *dis, HWND hwnd, HBRUSH zaznaczone, HBRUSH niezaznaczone, LPWSTR txt, int Txtlen){
 	drawButtonRed(dis->hDC, dis->itemState, hwnd, zaznaczone, niezaznaczone, txt, Txtlen, 450, 650, NULL);
 }
 void logoAni(HDC hdc){
-	if (ins!=NULL)
-		(*ins).postepAnim = (*ins).postepAnim + ((*ins).postepFaktyczny - (*ins).postepAnim) / 50;
-	if (logoCzas != 0 && narysowane != (*ins).postepAnim * 1200 / (32 * 1024) )
+	if (ins != NULL||instalacja::odinstal)
+		instalacja::postepAnim = instalacja::postepAnim + (instalacja::postepFaktyczny - instalacja::postepAnim) / 50;
+	if (logoCzas != 0 && narysowane != (*ins).postepAnim * 1200 / (32 * 1024))
 	{
 		int czasR = (*ins).postepAnim * 1200 / (32 * 1024);
 		//int czasR = GetTickCount() - logoCzas;
@@ -407,21 +448,21 @@ void logoAni(HDC hdc){
 		if (czasR<1000)
 		for (int i = 0; i < 150; i++)
 		{
-			for (int i2 = 0; i2 < 50; i2++)
-			{//do napisania pozycji
-				BitBlt(hdcBufor, 2 * i + 74 + logoRandom[i * 50 + i2] * czarMn / 1000, 2 * i2 + 100 + logoRandom[i * 50 + i2 + 150 * 50] * czarMn / 1000, 2, 2, hdcNowy, 2 * i, 2 * i2, SRCCOPY);
+		for (int i2 = 0; i2 < 50; i2++)
+		{//do napisania pozycji
+		BitBlt(hdcBufor, 2 * i + 74 + logoRandom[i * 50 + i2] * czarMn / 1000, 2 * i2 + 100 + logoRandom[i * 50 + i2 + 150 * 50] * czarMn / 1000, 2, 2, hdcNowy, 2 * i, 2 * i2, SRCCOPY);
 
-			}
+		}
 		}
 		else
 		{
-			logoCzas = 0;
-			BitBlt(hdcBufor, 74, 100, 300, 100, hdcNowy, 0, 0, SRCCOPY);
+		logoCzas = 0;
+		BitBlt(hdcBufor, 74, 100, 300, 100, hdcNowy, 0, 0, SRCCOPY);
 		}
 
 		SelectObject(hdcNowy, hbmOld);
 		DeleteDC(hdcNowy);
-		
+
 		BitBlt(hdc, 1, 150, 448, 300, hdcBufor, 0, 0, SRCCOPY);
 		DeleteDC(hdcBufor);
 		DeleteBitmap(hbmBuf);
@@ -470,8 +511,8 @@ VOID CALLBACK TimerProc(
 		}
 		if (nrAni > 2)
 		{
-			DestroyWindow(LicencjaTxt);
-			DestroyWindow(LicencjaZaakceptuj);
+			//DestroyWindow(LicencjaTxt);
+			//DestroyWindow(LicencjaZaakceptuj);
 			/*if (PrzyciskStan[5] == 1)
 			{
 
@@ -486,9 +527,9 @@ VOID CALLBACK TimerProc(
 		}
 		if (nrAni > 3)
 		{
-			DestroyWindow(JavaTakB);
-			DestroyWindow(JavaNieB);
-			DestroyWindow(JavaTxt);
+			//DestroyWindow(JavaTakB);
+			//DestroyWindow(JavaNieB);
+			//DestroyWindow(JavaTxt);
 		}
 	}
 	if (nrAni > 0 && przyciskJezyk[0] != NULL)
@@ -579,9 +620,9 @@ VOID CALLBACK TimerProc(
 	}
 	if (nrAni == 2 && LicencjaZaakceptuj != NULL)
 	{
-		MoveWindow(LicencjaZaakceptuj, 451 + przes, 500, 448, 149, true);
-		MoveWindow(LicencjaTxt, 475 + przes, 130, 400, 370, true);
-		if (PrzyciskStan[4] == 1)
+		//MoveWindow(LicencjaZaakceptuj, 451 + przes, 500, 448, 149, true);
+		//MoveWindow(LicencjaTxt, 475 + przes, 130, 400, 370, true);
+		/*if (PrzyciskStan[4] == 1)
 		{
 
 			drawButtonRed(GetDC(LicencjaZaakceptuj), 0, LicencjaZaakceptuj, ciemnyTlo2, ciemnyTlo3B, jezyk::napisy[Zaakceptuj], stringDlugosc(jezyk::napisy[Zaakceptuj]), 448, 149, PilotPCCzcionka2);
@@ -591,12 +632,12 @@ VOID CALLBACK TimerProc(
 		{
 			drawButtonRed(GetDC(LicencjaZaakceptuj), 0, LicencjaZaakceptuj, ciemnyTlo2, ciemnyTlo3, jezyk::napisy[Zaakceptuj], stringDlugosc(jezyk::napisy[Zaakceptuj]), 448, 149, PilotPCCzcionka2);
 
-		}
+		}*/
 	}
-	if (nrAni > 2 && LicencjaZaakceptuj != NULL)
+	if (nrAni > 2 )
 	{
-		MoveWindow(LicencjaZaakceptuj, 1 + przes, 500, 448, 149, true);
-		MoveWindow(LicencjaTxt, 25 + przes, 130, 400, 300, true);
+		//MoveWindow(LicencjaZaakceptuj, 1 + przes, 500, 448, 149, true);
+		//MoveWindow(LicencjaTxt, 25 + przes, 130, 400, 300, true);
 		if (PrzyciskStan[4] == 1)
 		{
 
@@ -638,11 +679,11 @@ VOID CALLBACK TimerProc(
 
 		}
 	}
-	if (nrAni > 3 && JavaNieB != NULL)
+	if (nrAni > 3 )
 	{
-		MoveWindow(JavaNieB, 1 + przes, 400, 448, 100, true);
-		MoveWindow(JavaTakB, 1 + przes, 180, 448, 220, true);
-		MoveWindow(JavaTxt, 25 + przes, 130, 400, 100, true);
+		//MoveWindow(JavaNieB, 1 + przes, 400, 448, 100, true);
+		//MoveWindow(JavaTakB, 1 + przes, 180, 448, 220, true);
+		//MoveWindow(JavaTxt, 25 + przes, 130, 400, 100, true);
 
 		/*if (PrzyciskStan[5] == 1)
 		{
@@ -717,7 +758,7 @@ VOID CALLBACK TimerProc(
 	}*/
 	if (czas > 1000)
 	{
-		if (nrAni == 3)
+		/*if (nrAni == 3)
 		{
 
 			RECT prost;
@@ -727,23 +768,23 @@ VOID CALLBACK TimerProc(
 			prost.bottom = 650;
 			FillRect(GetDC(hWnd), &prost, ciemnyTlo3);
 		}
-		nrAni = 0;
+		nrAni = 0;*/
 	}
 
 	logoAni(GetDC(hWnd));
 	/*if ((*ins).postepAnim > 0)
 	{
-		RECT prostTlo2;
-		prostTlo2.left = 25;
-		prostTlo2.top = 450;
-		prostTlo2.right = 25 + (*ins).postepAnim*400/(32*1024);
-		prostTlo2.bottom = 470;
-		FillRect(GetDC(hWnd), &prostTlo2, jasnyTlo1);
-		prostTlo2.left = 25 + (*ins).postepAnim * 400 / (32 * 1024);
-		prostTlo2.top = 450;
-		prostTlo2.right = 425;
-		prostTlo2.bottom = 470;
-		FillRect(GetDC(hWnd), &prostTlo2, ciemnyTlo2);
+	RECT prostTlo2;
+	prostTlo2.left = 25;
+	prostTlo2.top = 450;
+	prostTlo2.right = 25 + (*ins).postepAnim*400/(32*1024);
+	prostTlo2.bottom = 470;
+	FillRect(GetDC(hWnd), &prostTlo2, jasnyTlo1);
+	prostTlo2.left = 25 + (*ins).postepAnim * 400 / (32 * 1024);
+	prostTlo2.top = 450;
+	prostTlo2.right = 425;
+	prostTlo2.bottom = 470;
+	FillRect(GetDC(hWnd), &prostTlo2, ciemnyTlo2);
 	}*/
 	if ((*ins).postepFaktyczny > 0)
 	{
@@ -809,28 +850,28 @@ void przerysuj(HWND msghwnd)
 	}
 	/*if (msghwnd == przyciskX && PrzyciskStan[2] == 0)
 	{
-		PrzyciskStan[2] = 1;
+	PrzyciskStan[2] = 1;
 
-		drawButtonRed(GetDC(przyciskX), 0, przyciskX, ciemnyTlo2, ciemnyTloB, L"X", 1, 25, 25, XCzcionka);
+	drawButtonRed(GetDC(przyciskX), 0, przyciskX, ciemnyTlo2, ciemnyTloB, L"X", 1, 25, 25, XCzcionka);
 
 	}
 	else if (msghwnd != przyciskX && PrzyciskStan[2] != 0)
 	{
-		PrzyciskStan[2] = 0;
-		drawButtonRed(GetDC(przyciskX), 0, przyciskX, ciemnyTlo2, ciemnyTlo, L"X", 1, 25, 25, XCzcionka);
+	PrzyciskStan[2] = 0;
+	drawButtonRed(GetDC(przyciskX), 0, przyciskX, ciemnyTlo2, ciemnyTlo, L"X", 1, 25, 25, XCzcionka);
 
 	}
 	if (msghwnd == przyciskMin && PrzyciskStan[3] == 0)
 	{
-		PrzyciskStan[3] = 1;
+	PrzyciskStan[3] = 1;
 
-		drawButtonRed(GetDC(przyciskMin), 0, przyciskMin, ciemnyTlo2, ciemnyTloB, L"_", 1, 25, 25, XCzcionka);
+	drawButtonRed(GetDC(przyciskMin), 0, przyciskMin, ciemnyTlo2, ciemnyTloB, L"_", 1, 25, 25, XCzcionka);
 
 	}
 	else if (msghwnd != przyciskMin && PrzyciskStan[3] != 0)
 	{
-		PrzyciskStan[3] = 0;
-		drawButtonRed(GetDC(przyciskMin), 0, przyciskMin, ciemnyTlo2, ciemnyTlo, L"_", 1, 25, 25, XCzcionka);
+	PrzyciskStan[3] = 0;
+	drawButtonRed(GetDC(przyciskMin), 0, przyciskMin, ciemnyTlo2, ciemnyTlo, L"_", 1, 25, 25, XCzcionka);
 
 	}*/
 	if (msghwnd == LicencjaZaakceptuj && PrzyciskStan[4] == 0)
@@ -894,7 +935,7 @@ void odpakuj()
 
 	StatyczneInfo::plikBin[0].open("data1.bin", ios::binary | ios::in);
 	if (!StatyczneInfo::plikBin[0].is_open())  //blad otwarcia pliku
-		exit(-1) ;   //koniec programu
+		exit(-1);   //koniec programu
 
 	//sprawdzenie dlugosci pliku
 	StatyczneInfo::plikBin[0].seekg(0, ios::end);
@@ -906,55 +947,55 @@ void odpakuj()
 	char *dlugoscNagłówka = new char[4];
 
 	//odczytujemy plik bajt po bajcie
-	for (unsigned int i = 0; i<4; i++)
+	for (unsigned int i = 0; i < 4; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)&dlugoscNagłówka[i], 1);
 	}
 
 
 	char *dlugoscNazwa = new char[4];
-	for (unsigned int i = 0; i<4; i++)
+	for (unsigned int i = 0; i < 4; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)&dlugoscNazwa[i], 1);
 	}
-	StatyczneInfo::nazwa = new WCHAR[((unsigned short*)dlugoscNazwa)[0]+1];
-	for (unsigned int i = 0; i<((unsigned short*)dlugoscNazwa)[0]; i++)
+	StatyczneInfo::nazwa = new WCHAR[((unsigned short*)dlugoscNazwa)[0] + 1];
+	for (unsigned int i = 0; i < ((unsigned short*)dlugoscNazwa)[0]; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::nazwa + i, 1);
 	}
-	StatyczneInfo::nazwa[((unsigned short*)dlugoscNazwa)[0]/2] = 0;
+	StatyczneInfo::nazwa[((unsigned short*)dlugoscNazwa)[0] / 2] = 0;
 
 	char *dlugoscWersja = new char[4];
-	for (unsigned int i = 0; i<4; i++)
+	for (unsigned int i = 0; i < 4; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)&dlugoscWersja[i], 1);
 	}
-	StatyczneInfo::wersja = new WCHAR[((unsigned short*)dlugoscWersja)[0]+1];
-	for (unsigned int i = 0; i<((unsigned short*)dlugoscWersja)[0]; i++)
+	StatyczneInfo::wersja = new WCHAR[((unsigned short*)dlugoscWersja)[0] + 1];
+	for (unsigned int i = 0; i < ((unsigned short*)dlugoscWersja)[0]; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::wersja + i, 1);
 	}
 
-	StatyczneInfo::wersja[((unsigned short*)dlugoscWersja)[0]/2] = 0;
+	StatyczneInfo::wersja[((unsigned short*)dlugoscWersja)[0] / 2] = 0;
 	char *dlugoscAutor = new char[4];
-	for (unsigned int i = 0; i<4; i++)
+	for (unsigned int i = 0; i < 4; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)&dlugoscAutor[i], 1);
 	}
-	StatyczneInfo::autor = new WCHAR[((unsigned short*)dlugoscAutor)[0]+1];
-	for (unsigned int i = 0; i<((unsigned short*)dlugoscAutor)[0]; i++)
+	StatyczneInfo::autor = new WCHAR[((unsigned short*)dlugoscAutor)[0] + 1];
+	for (unsigned int i = 0; i < ((unsigned short*)dlugoscAutor)[0]; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::autor + i, 1);
 	}
 
 	StatyczneInfo::autor[((unsigned short*)dlugoscAutor)[0] / 2] = 0;
 	char *dlugoscLicencja = new char[4];
-	for (unsigned int i = 0; i<4; i++)
+	for (unsigned int i = 0; i < 4; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)&dlugoscLicencja[i], 1);
 	}
 	StatyczneInfo::licencja = new WCHAR[((unsigned short*)dlugoscLicencja)[0] + 1];
-	for (unsigned int i = 0; i<((unsigned short*)dlugoscLicencja)[0]; i++)
+	for (unsigned int i = 0; i < ((unsigned short*)dlugoscLicencja)[0]; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::licencja + i, 1);
 	}
@@ -963,12 +1004,12 @@ void odpakuj()
 
 
 	char *dlugoscPlikWyk = new char[4];
-	for (unsigned int i = 0; i<4; i++)
+	for (unsigned int i = 0; i < 4; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)&dlugoscPlikWyk[i], 1);
 	}
 	StatyczneInfo::plikWykonywalny = new WCHAR[((unsigned short*)dlugoscPlikWyk)[0] + 1];
-	for (unsigned int i = 0; i<((unsigned short*)dlugoscPlikWyk)[0]; i++)
+	for (unsigned int i = 0; i < ((unsigned short*)dlugoscPlikWyk)[0]; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::plikWykonywalny + i, 1);
 	}
@@ -976,17 +1017,63 @@ void odpakuj()
 	StatyczneInfo::plikWykonywalny[((unsigned short*)dlugoscPlikWyk)[0] / 2] = 0;
 
 	char *dlugoscScD = new char[4];
-	for (unsigned int i = 0; i<4; i++)
+	for (unsigned int i = 0; i < 4; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)&dlugoscScD[i], 1);
 	}
 	StatyczneInfo::SciezkaDomyslna = new WCHAR[((unsigned short*)dlugoscScD)[0] + 1];
-	for (unsigned int i = 0; i<((unsigned short*)dlugoscScD)[0]; i++)
+	for (unsigned int i = 0; i < ((unsigned short*)dlugoscScD)[0]; i++)
 	{
 		StatyczneInfo::plikBin[0].read((char*)StatyczneInfo::SciezkaDomyslna + i, 1);
 	}
 
 	StatyczneInfo::SciezkaDomyslna[((unsigned short*)dlugoscScD)[0] / 2] = 0;
+
+	unsigned long *dlugoscObrOrg = new unsigned long[8];
+	for (unsigned int i = 0; i < 8; i++)
+	{
+		StatyczneInfo::plikBin[0].read(((char*)dlugoscObrOrg)+i, 1);
+	}
+	unsigned long *dlugoscObr = new unsigned long[8];
+	for (unsigned int i = 0; i < 8; i++)
+	{
+		StatyczneInfo::plikBin[0].read(((char*)dlugoscObr) + i, 1);
+	}
+	if (((unsigned long*)dlugoscObr)[0] != 0)
+	{
+		unsigned long dlugosc_po_rozpakowaniu = -1;
+		Byte* bufor_docelowy = new byte[(dlugoscObrOrg)[0]];
+		Byte* buforSkompresowany = new byte[(dlugoscObr)[0]];
+
+		//czytamy plik
+		for (unsigned long i = 0; i < ((unsigned long*)dlugoscObr)[0]; i++)
+		{
+			StatyczneInfo::plikBin[0].read((char*)&buforSkompresowany[i], 1);
+
+		}
+
+		//rozpakowyjemy
+		uncompress((Bytef*)bufor_docelowy, (uLong*)dlugoscObrOrg, (Bytef*)buforSkompresowany, ((long*)dlugoscObr)[0]);
+
+
+
+		tagBITMAPFILEHEADER bfh = *(tagBITMAPFILEHEADER*)(bufor_docelowy);
+		tagBITMAPINFOHEADER bih = *(tagBITMAPINFOHEADER*)(bufor_docelowy + sizeof(tagBITMAPFILEHEADER));
+		RGBQUAD             rgb = *(RGBQUAD*)(bufor_docelowy + sizeof(tagBITMAPFILEHEADER)+sizeof(tagBITMAPINFOHEADER));
+
+		StatyczneInfo::obrazekInfo.bmiColors[0] = rgb;
+		StatyczneInfo::obrazekInfo.bmiHeader = bih;
+
+		char* pPixels = (char*)(bufor_docelowy + bfh.bfOffBits);
+
+		char* ppvBits;
+
+		StatyczneInfo::obrazek = CreateDIBSection(NULL, &StatyczneInfo::obrazekInfo, DIB_RGB_COLORS, (void**)&ppvBits, NULL, 0);
+		SetDIBits(NULL, StatyczneInfo::obrazek, 0, bih.biHeight, pPixels, &StatyczneInfo::obrazekInfo, DIB_RGB_COLORS);
+
+		//GetObject(StatyczneInfo::obrazek, sizeof(BITMAP), &cBitmap);
+	}
+
 
 	//tworzenie bufora do ktorego zapiszemy dane rozpakowane przez biblioteke zlib
 	//wielkosc bufora dla bezpieczenistwa powinna byc
@@ -1006,22 +1093,22 @@ void odpakuj()
 	//zapis danych do pliku
 	for (unsigned int i = 0; i<dlugosc_po_rozpakowaniu; i++)
 	{
-		plik_po_rozpakowaniu.write((char*)&bufor_docelowy[i], 1);
+	plik_po_rozpakowaniu.write((char*)&bufor_docelowy[i], 1);
 	}
 	//zamykamy strumienie plikow
 	plik.close();
 	plik_po_rozpakowaniu.close();*/
-	
+
 }
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR test, INT iCmdShow)
 {
 	odpakuj();
-		Checkbox1 = LoadBitmap(hinstance, MAKEINTRESOURCE(2));
-		Checkbox2 = LoadBitmap(hinstance, MAKEINTRESOURCE(3));
+	Checkbox1 = LoadBitmap(hinstance, MAKEINTRESOURCE(2));
+	Checkbox2 = LoadBitmap(hinstance, MAKEINTRESOURCE(3));
 	hbmObraz = LoadBitmap(hinstance, MAKEINTRESOURCE(1));
-	for (int i = 0; i < 50*150; i++)
+	for (int i = 0; i < 50 * 150; i++)
 	{
-		logoRandom[i] = (rand() % 2)*900-450;
+		logoRandom[i] = (rand() % 2) * 900 - 450;
 	}
 	for (int i = 50 * 150; i < 100 * 150; i++)
 	{
@@ -1036,14 +1123,14 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR test, INT iCmdShow)
 	}
 	hbmObraz = LoadBitmap(hinstance, MAKEINTRESOURCE(1));
 
-	ciemnyTlo = CreateSolidBrush(RGB(38, 33, 27));
-	ciemnyTloB = CreateSolidBrush(RGB(48, 43, 35));
-	ciemnyTlo2 = CreateSolidBrush(RGB(52, 47, 39));
-	ciemnyTlo3 = CreateSolidBrush(RGB(28, 24, 20));
-	ciemnyTlo3B = CreateSolidBrush(RGB(48, 43, 35));
-	ciemnyTlo4 = CreateSolidBrush(RGB(58, 50, 40));
-	ciemnyTlo4B = CreateSolidBrush(RGB(68, 60, 50));
-	ciemnyTlo5 = CreateSolidBrush(RGB(73, 65, 54));
+	ciemnyTlo = CreateSolidBrush(RGB(47, 47, 49));
+	ciemnyTloB = CreateSolidBrush(RGB(55, 55, 58));
+	ciemnyTlo2 = CreateSolidBrush(RGB(62, 62, 66));
+	ciemnyTlo3 = CreateSolidBrush(RGB(37, 37, 39));
+	ciemnyTlo3B = CreateSolidBrush(RGB(55, 55, 58));
+	ciemnyTlo4 = CreateSolidBrush(RGB(65, 65, 70));
+	ciemnyTlo4B = CreateSolidBrush(RGB(70, 70, 76));
+	ciemnyTlo5 = CreateSolidBrush(RGB(75, 75, 82));
 	jasnyTlo1 = CreateSolidBrush(RGB(225, 220, 210));
 	jasnyTlo2 = CreateSolidBrush(RGB(255, 255, 255));
 	Szymon1 = CreateSolidBrush(RGB(0, 153, 253));
@@ -1123,18 +1210,13 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR test, INT iCmdShow)
 			GetWindowText(folder, Bufor, dlugosc + 2);
 			trwa = true;
 
-			hProgressBar = CreateWindowEx(0, PROGRESS_CLASS, NULL, WS_CHILD | WS_VISIBLE | PBS_SMOOTH,
-				25, 450, 400, 20, hWnd, (HMENU)200, hinstance, NULL);
-			SendMessage(hProgressBar, PBM_SETBKCOLOR, 0, (LPARAM)niebieski);
-
-			SendMessage(hProgressBar, PBM_SETRANGE, 0, (LPARAM)MAKELONG(0, 32 * 1024));
-			instalacja::odinstaluj(hinstance, hProgressBar, hWnd);
+			instalacja::odinstaluj(hinstance, hWnd);
 		}
 		else if (parametry.length() > 4 && parametry[3] == '"')
 		{
 			string folder1;
 			wstring folder2;
-			LPCWSTR folder3 = L"c:\program files\PilotPC";
+			LPCWSTR folder3 = L"c:\\program files\\PilotPC";
 			systemStartBool = wszyscy = skrotMenuStart = skrotPulpit = false;
 			int i = 4;
 			for (; i < parametry.length(); i++)
@@ -1180,14 +1262,9 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR test, INT iCmdShow)
 			StanInstalacji = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
 				SS_LEFT, 25, 470, 400, 20, hWnd, NULL, hInstance, NULL);
 			SendMessage(StanInstalacji, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
-			
-			hProgressBar = CreateWindowEx(0, PROGRESS_CLASS, NULL, WS_CHILD | WS_VISIBLE | PBS_SMOOTH,
-				25, 450, 400, 20, hWnd, (HMENU)200, hinstance, NULL);
-			SendMessage(hProgressBar, PBM_SETBKCOLOR, 0, (LPARAM)niebieski);
 
-			SendMessage(hProgressBar, PBM_SETRANGE, 0, (LPARAM)MAKELONG(0, 32 * 1024));
 			logoCzas = GetTickCount();
-			ins = new instalacja(systemStartBool, wszyscy, folder3, skrotPulpit, skrotMenuStart, hProgressBar, folder2, StanInstalacji);
+			ins = new instalacja(systemStartBool, wszyscy, folder3, skrotPulpit, skrotMenuStart, folder2, StanInstalacji);
 			(*ins).start(hWnd);
 		}
 		else
@@ -1367,7 +1444,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 							else if (dis->CtlID == 2001)
 								drawButtonRed(dis, WyborInstaluj, ciemnyTlo2, ciemnyTlo, jezyk::napisy[InstalujPonownie], stringDlugosc(jezyk::napisy[InstalujPonownie]));
 							else if (dis->CtlID == 1998)
-								drawButtonRed(dis->hDC,dis->itemState, przyciskMin, ciemnyTlo2, ciemnyTlo, L"_", 1,25,25,XCzcionka);
+								drawButtonRed(dis, przyciskMin, ciemnyTlo2, ciemnyTlo, L"_", 1);
 							else if (dis->CtlID == 1999)
 								drawButtonRed(dis, przyciskX, ciemnyTlo2, ciemnyTlo, L"X", 1);
 							else if (dis->CtlID == 2002)
@@ -1422,14 +1499,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 				DestroyWindow(FolderTxt);
 				DestroyWindow(g_hPrzycisk);
 
-				hProgressBar = CreateWindowEx(0, PROGRESS_CLASS, NULL, WS_CHILD | WS_VISIBLE | PBS_SMOOTH,
-					25, 450, 400, 20, hWnd, (HMENU)200, hinstance, NULL);
-				SendMessage(hProgressBar, PBM_SETBKCOLOR, 0, (LPARAM)niebieski);
-
-				SendMessage(hProgressBar, PBM_SETRANGE, 0, (LPARAM)MAKELONG(0, 32 * 1024));
 				wstring wfolder;
 				logoCzas = GetTickCount();
-				ins = new instalacja(systemStartBool, wszyscy, Bufor, skrotPulpit, skrotMenuStart, hProgressBar, wstring(Bufor), StanInstalacji);
+				ins = new instalacja(systemStartBool, wszyscy, Bufor, skrotPulpit, skrotMenuStart, wstring(Bufor), StanInstalacji);
 				(*ins).start(hWnd);
 			}for (int i = 0; i < 3; i++)
 			{
@@ -1454,7 +1526,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 				DestroyWindow(WyborTxt);*/
 
 				wyswietl(hinstance);
-				nrAni = 2;
+				nrAni = 4;
 				animacjaCzas = GetTickCount();
 			}if ((HWND)lParam == WyborOdinstaluj)
 			{
@@ -1467,12 +1539,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 				DestroyWindow(WyborOdinstaluj);
 				DestroyWindow(WyborTxt);
 
-				hProgressBar = CreateWindowEx(0, PROGRESS_CLASS, NULL, WS_CHILD | WS_VISIBLE | PBS_SMOOTH,
-					25, 450, 400, 20, hWnd, (HMENU)200, hinstance, NULL);
-				SendMessage(hProgressBar, PBM_SETBKCOLOR, 0, (LPARAM)niebieski);
-
-				SendMessage(hProgressBar, PBM_SETRANGE, 0, (LPARAM)MAKELONG(0, 32 * 1024));
-				instalacja::odinstaluj(hinstance, hProgressBar, hWnd);
+				instalacja::odinstaluj(hinstance, hWnd);
 			}
 			else if ((HWND)lParam == user1)
 			{

@@ -48,7 +48,7 @@ return ret;
 
 
 
-instalacja::instalacja(bool _systemStart, bool _wszyscy, LPCWSTR _folder, bool _skrotPulpit, bool _skrotMenuStart, HWND _progressbar, wstring _wfolder, HWND _StanInstalacji)
+instalacja::instalacja(bool _systemStart, bool _wszyscy, LPCWSTR _folder, bool _skrotPulpit, bool _skrotMenuStart,  wstring _wfolder, HWND _StanInstalacji)
 {
 
 	systemStart = _systemStart;
@@ -58,7 +58,6 @@ instalacja::instalacja(bool _systemStart, bool _wszyscy, LPCWSTR _folder, bool _
 	skrotMenuStart = _skrotMenuStart;
 	skrotPulpit = _skrotPulpit;
 	folderStr = wstring(folder);
-	progressbar = _progressbar;
 	StanInstalacji = _StanInstalacji;
 	//MessageBox(okno, folder,wfolder.c_str(), MB_ICONINFORMATION);
 
@@ -159,6 +158,18 @@ void róbFolder(wstring fol)
 		exit(1);
 	}
 }
+long pozycja;
+void ladujNastepnyPlik()
+{
+	//pozycja = StatyczneInfo::plikBin[0].tellg();
+	if (pozycja > StatyczneInfo::dlugoscPliku){
+		StatyczneInfo::otwartyPlikId++;
+		StatyczneInfo::plikBin[0].open((string("data") + std::to_string(StatyczneInfo::otwartyPlikId) + string(".bin")).c_str(), ios::binary | ios::in);
+		StatyczneInfo::otwartyPlik = (StatyczneInfo::plikBin[0].is_open());  //blad otwarcia pliku
+	}
+}
+int instalacja::postepFaktyczny = 0;
+int instalacja::postepAnim = 0;
 void instalacja::start(wstring fol)
 {
 	try{
@@ -201,7 +212,8 @@ void instalacja::start(wstring fol)
 		long *dlugoscPlikSkompresowany = new long[2];
 		while (StatyczneInfo::plikBin[0].tellg() < StatyczneInfo::dlugoscPliku)
 		{
-			//int pos2 = StatyczneInfo::plikBin[0].getloc();
+			pozycja = StatyczneInfo::plikBin[0].tellg();
+				ladujNastepnyPlik();
 			postepFaktyczny = 2048 + ((StatyczneInfo::plikBin[0].tellg() * 31 * 1024) / StatyczneInfo::dlugoscPliku);
 
 			char *dlugoscNazwa = new char[4];
@@ -209,34 +221,49 @@ void instalacja::start(wstring fol)
 			{
 				StatyczneInfo::plikBin[0].read((char*)&dlugoscNazwa[i], 1);
 			}
+			pozycja += 4;
+				ladujNastepnyPlik();
 			for (unsigned int i = 0; i < ((unsigned short*)dlugoscNazwa)[0]; i++)
 			{
 				StatyczneInfo::plikBin[0].read((char*)nazwa + i, 1);
 			}
 			nazwa[((unsigned short*)dlugoscNazwa)[0] / 2] = 0;
+			pozycja += ((unsigned short*)dlugoscNazwa)[0];
+				ladujNastepnyPlik();
 
 
 			for (unsigned int i = 0; i < 8; i++)
 			{
 				StatyczneInfo::plikBin[0].read(((char*)dlugoscPlikOrg) + i, 1);
 			}
+			pozycja += 8;
+				ladujNastepnyPlik();
 			for (unsigned int i = 0; i < 8; i++)
 			{
 				StatyczneInfo::plikBin[0].read(((char*)dlugoscPlikSkompresowany) + i, 1);
 			}
+			pozycja += 8;
+				ladujNastepnyPlik();
 
 			unsigned long dlugosc_po_rozpakowaniu = -1;
 			Byte* bufor_docelowy = new byte[((long*)dlugoscPlikOrg)[0]];
 			Byte* buforSkompresowany = new byte[((long*)dlugoscPlikSkompresowany)[0]];
-
+			pozycja = StatyczneInfo::plikBin[0].tellg();
 			//czytamy plik
 			for (unsigned long i = 0; i < (dlugoscPlikSkompresowany)[0]; i++)
 			{
 				StatyczneInfo::plikBin[0].read((char*)&buforSkompresowany[i], 1);
+				pozycja++;
+				if (pozycja > StatyczneInfo::dlugoscPliku)
+				{
+					ladujNastepnyPlik();
+					if (!StatyczneInfo::otwartyPlik)
+						break;
+				}
 			}
 
 			//rozpakowyjemy
-			uncompress((Bytef*)bufor_docelowy, (uLong*)dlugoscPlikSkompresowany, (Bytef*)buforSkompresowany, ((long*)dlugoscPlikSkompresowany)[0]);
+			uncompress((Bytef*)bufor_docelowy, (uLong*)dlugoscPlikOrg, (Bytef*)buforSkompresowany, ((long*)dlugoscPlikSkompresowany)[0]);
 
 			fstream plik_po_rozpakowaniu;
 			//przygotowanie folderu
@@ -361,9 +388,12 @@ void instalacja::start(wstring fol)
 		}
 		postepFaktyczny = 32 * 1024;
 	}
-	catch (exception)
+	catch (exception e)
 	{
-		MessageBox(0, jezyk::napisy[BladPodczasInstalacji], jezyk::napisy[BladPodczasInstalacji], MB_ICONERROR);
+		const char* what = e.what();
+		string stWhat = string(what);
+		wstring wstWhat = wstring(stWhat.begin(), stWhat.end());
+		MessageBox(0, wstWhat.c_str(), jezyk::napisy[BladPodczasInstalacji], MB_ICONERROR);
 
 	}
 }
@@ -420,15 +450,16 @@ void instalacja::start(HWND hWnd)
 	_beginthread(watekStart, 0, this);
 }
 
-
+bool instalacja::odinstal = false;
 instalacja::~instalacja()
 {
 }
 
-void instalacja::odinstaluj(HINSTANCE hInstance, HWND progressbar, HWND okno)
+void instalacja::odinstaluj(HINSTANCE hInstance, HWND okno)
 {
 	// Check the current process's "run as administrator" status.
 	BOOL fIsRunAsAdmin;
+	instalacja::odinstal = true;
 	try
 	{
 		fIsRunAsAdmin = IsRunAsAdmin();
@@ -481,13 +512,12 @@ void instalacja::odinstaluj(HINSTANCE hInstance, HWND progressbar, HWND okno)
 	DWORD typ_danych = REG_SZ; //zmienna na typ danych
 	ULONG ret = RegQueryValueExA(r, "UninstallString", 0, &typ_danych, (LPBYTE)folderExe, &rozmiar);
 	string folder = ((string)folderExe).substr(0, rozmiar - 15);
-	SendMessage(progressbar, PBM_SETPOS, (WPARAM)1 * 1024, 0);
-	SendMessage(progressbar, PBM_SETPOS, (WPARAM)9 * 1024, 0);
+	postepFaktyczny = 9 * 1024;
 
-	system("rd /s /q %appdata%\\PilotPC-PC-Java");
-	SendMessage(progressbar, PBM_SETPOS, (WPARAM)18 * 1024, 0);
+	system("rd /s /q %appdata%\\PilotPC-PC-Java"); 
+	postepFaktyczny = 18 * 1024;
 	system((string("rd /s /q \"") + folder + "\"").c_str());
-	SendMessage(progressbar, PBM_SETPOS, (WPARAM)25 * 1024, 0);
+	postepFaktyczny = 25 * 1024;
 
 	char userprofile[1024];
 
@@ -499,7 +529,7 @@ void instalacja::odinstaluj(HINSTANCE hInstance, HWND progressbar, HWND okno)
 	DeleteFileA(Pulpit.c_str());
 	system(((string)"rd /s /q \"" + userprofile + (string)"\\Start Menu\\Programs\\PilotPC\"").c_str());
 	system(((string)"rd /s /q \"" + appdata + (string)"\\Microsoft\\Windows\\Start Menu\\Programs\\PilotPC\"").c_str());
-	SendMessage(progressbar, PBM_SETPOS, (WPARAM)27 * 1024, 0);
+	postepFaktyczny = 27 * 1024;
 
 	RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &run);
 	RegDeleteValue(run, L"PilotPC");
@@ -509,7 +539,7 @@ void instalacja::odinstaluj(HINSTANCE hInstance, HWND progressbar, HWND okno)
 	RegDeleteValue(run, L"PilotPC");
 	RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_ALL_ACCESS, &uninstall);
 	RegDeleteKey(uninstall, L"PilotPC");
-	SendMessage(progressbar, PBM_SETPOS, (WPARAM)32 * 1024, 0);
+	postepFaktyczny = 32 * 1024;
 	MessageBox(0, jezyk::napisy[Usunieto], L"", MB_ICONINFORMATION);
 	exit(0);
 }

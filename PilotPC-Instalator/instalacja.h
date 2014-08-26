@@ -5,13 +5,14 @@ using namespace std;
 BOOL IsRunAsAdmin();
 class instalacja
 {
-public: int postepFaktyczny = 0;
-public: int postepAnim = 0;
+public: static int postepFaktyczny;
+public: static int postepAnim;
 public:HWND StanInstalacji;
-public:	instalacja(bool systemStart, bool wszyscy, LPCWSTR folder, bool skrotPulpit, bool skrotMenuStart, HWND,wstring wfolder,HWND);
+public:	instalacja(bool systemStart, bool wszyscy, LPCWSTR folder, bool skrotPulpit, bool skrotMenuStart,wstring wfolder,HWND);
 public: void instalacja::start(wstring fol);
 public: void instalacja::start(HWND hWnd);
-public: static void instalacja::odinstaluj(HINSTANCE, HWND, HWND);
+public: static bool odinstal;
+public: static void instalacja::odinstaluj(HINSTANCE, HWND);
 public: void __cdecl instalacja::start(void * Args);
 		HWND okno;
 	HWND progressbar;

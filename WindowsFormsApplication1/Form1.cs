@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -40,12 +42,19 @@ namespace WindowsFormsApplication1
             Proje.wersja = Wersja.Text;
             Proje.autor = Autor.Text;
             Proje.licencja = Licencja.Text;
+            if (checkObrazek.Checked)
+                Proje.Obrazek = ObrPole.Text;
+            try
+            {
+                Proje.coIleDziel = ulong.Parse(coIleDzieli.Text);
+            }
+            catch { Proje.coIleDziel = long.MaxValue; }
             InnyFolDom_CheckedChanged(null, null);
             Proje.FolderDom = FolDom.Text;
             var wątek = new Thread((o) =>
             {
 
-                Proje.zapisz();
+                Proje.zapisz(true);
                 MessageBox.Show("Gotowe!");
             });
             wątek.Start();
@@ -73,6 +82,62 @@ namespace WindowsFormsApplication1
         private void Autor_TextChanged(object sender, EventArgs e)
         {
             InnyFolDom_CheckedChanged(null, null);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog d = new OpenFileDialog();
+            d.Filter = "Obrazek|*.bmp";
+            d.ShowDialog();
+            ObrPole.Text = d.FileName;
+            if (sender != null && ObrPole.Text != "")
+                checkObrazek.Checked = true;
+        }
+
+        private void checkObrazek_CheckedChanged(object sender, EventArgs e)
+        {
+            if ((sender as CheckBox).Checked && ObrPole.Text == "")
+                button2_Click(null, null);
+            ObrPole.Enabled = (sender as CheckBox).Checked;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            try
+            {
+                var d = new DirectoryInfo(System.IO.Path.GetTempPath() + "JaebeInstallTest");
+                d.Delete(true);
+            }
+            catch { }
+            Application.Exit();
+            
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            var Proje = new ProjektInstalatora();
+            Proje.folderŹródłowy = FolSrc.Text;
+            Proje.folderDocelowy = System.IO.Path.GetTempPath()+"JaebeInstallTest";
+            Proje.nazwa = Nazwa.Text;
+            Proje.wersja = Wersja.Text;
+            Proje.autor = Autor.Text;
+            Proje.licencja = Licencja.Text;
+            if (checkObrazek.Checked)
+                Proje.Obrazek = ObrPole.Text;
+            InnyFolDom_CheckedChanged(null, null);
+            Proje.FolderDom = FolDom.Text;
+            var wątek = new Thread((o) =>
+            {
+
+                Proje.zapisz(false);
+                Process.Start(System.IO.Path.GetTempPath() + "JaebeInstallTest\\install.exe");
+            });
+            wątek.Start();
         }
 
     }

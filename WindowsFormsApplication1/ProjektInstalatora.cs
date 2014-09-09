@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 
 namespace WindowsFormsApplication1
 {
@@ -26,8 +27,8 @@ namespace WindowsFormsApplication1
             var dir2 = new DirectoryInfo(folderDocelowy);
             if (!dir2.Exists)
                 dir2.Create();
-            if(czyPrawdziwe)
-            Form1.ProgressMax = liczPliki(new DirectoryInfo(folderŹródłowy));
+            if (czyPrawdziwe)
+                Form1.ProgressMax = liczPliki(new DirectoryInfo(folderŹródłowy));
 
             //zapisywanie metadanych
             bin.Write(nazwa.Length * 2 + 4 + wersja.Length * 2 + 4 + autor.Length * 2 + 4 + licencja.Length * 2 + 4 + plikWykonywalny.Length * 2 + 4 + FolderDom.Length * 2 + 4);
@@ -71,8 +72,16 @@ namespace WindowsFormsApplication1
             //bin.Write(0);
             bin.Close();
             // strumień.Close();
-            System.IO.File.Copy("install.exe", folderDocelowy + "\\install.exe", true);
-            System.IO.File.Copy("zlib1.dll", folderDocelowy + "\\zlib1.dll", true);
+            try
+            {
+                System.IO.File.Copy("install.exe", folderDocelowy + "\\install.exe", true);
+            }
+            catch { MessageBox.Show("Błąd", "Nie można znaleźć pliku install.exe", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            try
+            {
+                System.IO.File.Copy("zlib1.dll", folderDocelowy + "\\zlib1.dll", true);
+            }
+            catch { MessageBox.Show("Błąd", "Nie można znaleźć pliku zlub1.dll", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
 
         }

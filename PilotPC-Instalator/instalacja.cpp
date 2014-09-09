@@ -162,10 +162,12 @@ long pozycja;
 void ladujNastepnyPlik()
 {
 	//pozycja = StatyczneInfo::plikBin[0].tellg();
-	if (pozycja > StatyczneInfo::dlugoscPliku){
+	if (pozycja >= (long) StatyczneInfo::dlugoscPliku){
 		StatyczneInfo::otwartyPlikId++;
+		StatyczneInfo::plikBin = new fstream[1];
 		StatyczneInfo::plikBin[0].open((string("data") + std::to_string(StatyczneInfo::otwartyPlikId) + string(".bin")).c_str(), ios::binary | ios::in);
 		StatyczneInfo::otwartyPlik = (StatyczneInfo::plikBin[0].is_open());  //blad otwarcia pliku
+		pozycja = 0;
 	}
 }
 int instalacja::postepFaktyczny = 0;
@@ -210,7 +212,8 @@ void instalacja::start(wstring fol)
 		WCHAR* nazwa = new WCHAR[32 * 1024];
 		long *dlugoscPlikOrg = new long[2];
 		long *dlugoscPlikSkompresowany = new long[2];
-		while (StatyczneInfo::plikBin[0].tellg() < StatyczneInfo::dlugoscPliku)
+		//while (StatyczneInfo::plikBin[0].tellg() < StatyczneInfo::dlugoscPliku)
+		while (StatyczneInfo::otwartyPlik)
 		{
 			pozycja = StatyczneInfo::plikBin[0].tellg();
 				ladujNastepnyPlik();
@@ -254,7 +257,7 @@ void instalacja::start(wstring fol)
 			{
 				StatyczneInfo::plikBin[0].read((char*)&buforSkompresowany[i], 1);
 				pozycja++;
-				if (pozycja > StatyczneInfo::dlugoscPliku)
+				if (pozycja >= StatyczneInfo::dlugoscPliku)
 				{
 					ladujNastepnyPlik();
 					if (!StatyczneInfo::otwartyPlik)
@@ -377,12 +380,13 @@ void instalacja::start(wstring fol)
 			string folderMS;
 			folderMS = userprofile + (string)"\\Start Menu\\Programs\\" + std::string(wstring(StatyczneInfo::nazwa).begin(), wstring(StatyczneInfo::nazwa).end());
 			CreateDirectoryA(folderMS.c_str(), NULL);
-			system(((string)"mklink \"" + folderMS + (string)"\\" + std::string(wstring(StatyczneInfo::nazwa).begin(), wstring(StatyczneInfo::nazwa).end()) + "\" \"" + std::string(folderStr.begin(), folderStr.end()) + (string)"\\Windows.exe\"").c_str());
+			wstring wstrindzek = wstring(StatyczneInfo::nazwa);
+			system(((string)"mklink \"" + folderMS + (string)"\\" + std::string(wstrindzek.begin(), wstrindzek.end()) + "\" \"" + std::string(folderStr.begin(), folderStr.end()) + (string)"\\Windows.exe\"").c_str());
 			//CreateLink((folderStr + (L"\\PilotPC-PC-Java.jar")).c_str(), (folderMS + (string)"\\PilotPC").c_str(), L"PilotPC - program do sterowania komputerem z poziomu telefonu", folderStr.c_str());
 			//CreateLink((folderStr + (L"\\Uninstall.exe")).c_str(), (folderMS + (string)"\\Odinstaluj").c_str(), L"Usuwa program PilotPC z tego komputera", folderStr.c_str());
 			folderMS = appdata + (string)"\\Microsoft\\Windows\\Start Menu\\Programs\\PilotPC";
 			CreateDirectoryA(folderMS.c_str(), NULL);
-			system(((string)"mklink \"" + folderMS + (string)"\\" + std::string(wstring(StatyczneInfo::nazwa).begin(), wstring(StatyczneInfo::nazwa).end()) + "\" \"" + std::string(folderStr.begin(), folderStr.end()) + (string)"\\Windows.exe\"").c_str());
+			system(((string)"mklink \"" + folderMS + (string)"\\" + std::string(wstrindzek.begin(), wstrindzek.end()) + "\" \"" + std::string(folderStr.begin(), folderStr.end()) + (string)"\\Windows.exe\"").c_str());
 			//CreateLink((folderStr + (L"\\PilotPC-PC-Java.jar")).c_str(), (folderMS + (string)"\\PilotPC").c_str(), L"PilotPC - program do sterowania komputerem z poziomu telefonu", folderStr.c_str());
 			//CreateLink((folderStr + (L"\\Uninstall.exe")).c_str(), (folderMS + (string)"\\Odinstaluj").c_str(), L"Usuwa program PilotPC z tego komputera", folderStr.c_str());
 		}

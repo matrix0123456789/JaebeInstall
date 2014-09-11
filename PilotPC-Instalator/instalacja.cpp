@@ -46,7 +46,8 @@ ret[i + i2] = a[i2];
 return ret;
 }*/
 
-
+HWND koniecB;
+void koniec();
 
 instalacja::instalacja(bool _systemStart, bool _wszyscy, LPCWSTR _folder, bool _skrotPulpit, bool _skrotMenuStart,  wstring _wfolder, HWND _StanInstalacji)
 {
@@ -116,6 +117,7 @@ void __cdecl watekStart(void * Args)
 			((instalacja*)Args)[0].start(((instalacja*)Args)[0].wfolder);
 			MessageBox(((instalacja*)Args)[0].okno, jezyk::napisy[Zainstalowano], jezyk::napisy[Zainstalowano], MB_ICONINFORMATION);
 			exit(0);
+			koniec();
 		}
 	}
 	catch (DWORD dwError)
@@ -123,6 +125,7 @@ void __cdecl watekStart(void * Args)
 		((instalacja*)Args)[0].start(((instalacja*)Args)[0].wfolder);
 		MessageBox(((instalacja*)Args)[0].okno, jezyk::napisy[Zainstalowano], jezyk::napisy[Zainstalowano], MB_ICONINFORMATION);
 		exit(0);
+		koniec();
 	}
 
 
@@ -168,6 +171,10 @@ void ladujNastepnyPlik()
 		StatyczneInfo::plikBin[0].open((string("data") + std::to_string(StatyczneInfo::otwartyPlikId) + string(".bin")).c_str(), ios::binary | ios::in);
 		StatyczneInfo::otwartyPlik = (StatyczneInfo::plikBin[0].is_open());  //blad otwarcia pliku
 		pozycja = 0;
+
+		StatyczneInfo::plikBin[0].seekg(0, ios::end);
+		StatyczneInfo::dlugoscPliku = StatyczneInfo::plikBin[0].tellg();
+		StatyczneInfo::plikBin[0].seekg(0, ios::beg);
 	}
 }
 int instalacja::postepFaktyczny = 0;
@@ -195,7 +202,18 @@ void instalacja::start(wstring fol)
 		GetModuleFileName(NULL, bufor, 1024);
 		CopyFile(bufor, (folderStr + (L"\\uninstall.exe")).c_str(), false);
 		postepFaktyczny = 512;
+		fstream data1kopia;
+		data1kopia.open((wstring(wfolder) + L"\\data1.bin").c_str(), ios::binary | ios::out);
+		//zapis danych do pliku
+		char* bufdoc = new char[1];
 
+		StatyczneInfo::plikBin[0].seekg(0, ios::beg);
+		for (unsigned int i = 0; i < StatyczneInfo::NaglowkiDl; i++)
+		{
+			StatyczneInfo::plikBin[0].read(bufdoc, 1);
+			data1kopia.write(bufdoc,1);
+		}
+		data1kopia.close();
 		//int soc=getHttp("pilotpc.za.pl", 13, "pilotpc-pc-java.jar", 19);
 		/*int soc = getHttp("pilotpc.za.pl", 13, "version.ini", 11);
 		const int BuffSize = 10000;
@@ -620,4 +638,11 @@ Cleanup:
 	}
 
 	return fIsRunAsAdmin;
+}void koniec()
+{
+	HFONT PilotPCCzcionka = CreateFont(20, 0, 0, 0, 0, 0, 0, 0, 0, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 0, L"Segoe UI");
+	koniecB = CreateWindowEx(0, L"BUTTON", L"Zainstalowano, kliknij by zakoñczyæ", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
+		451, 180, 448, 220, koniecB, (HMENU)2000, instalacja::hins, NULL);
+	SendMessage(koniecB, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
 }
+HINSTANCE instalacja::hins;

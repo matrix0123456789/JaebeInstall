@@ -15,6 +15,7 @@ public: static bool otwartyPlik;
 public:static int otwartyPlikId;
 public:static HBITMAP obrazek;
 public:static BITMAPINFO obrazekInfo;
+public:static long NaglowkiDl;
 public:
 	StatyczneInfo();
 	~StatyczneInfo();

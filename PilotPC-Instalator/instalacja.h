@@ -6,6 +6,7 @@ BOOL IsRunAsAdmin();
 class instalacja
 {
 public: static int postepFaktyczny;
+public:static HINSTANCE hins;
 public: static int postepAnim;
 public:HWND StanInstalacji;
 public:	instalacja(bool systemStart, bool wszyscy, LPCWSTR folder, bool skrotPulpit, bool skrotMenuStart,wstring wfolder,HWND);

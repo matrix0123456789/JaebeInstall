@@ -81,7 +81,7 @@ namespace WindowsFormsApplication1
             {
                 System.IO.File.Copy("zlib1.dll", folderDocelowy + "\\zlib1.dll", true);
             }
-            catch { MessageBox.Show("Błąd", "Nie można znaleźć pliku zlub1.dll", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch { MessageBox.Show("Błąd", "Nie można znaleźć pliku zlib1.dll", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
 
         }

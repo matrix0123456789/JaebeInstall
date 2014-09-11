@@ -10,6 +10,7 @@ StatyczneInfo::StatyczneInfo()
 StatyczneInfo::~StatyczneInfo()
 {
 }
+long StatyczneInfo::NaglowkiDl;
 WCHAR* StatyczneInfo::nazwa = L"testtest";
 WCHAR* StatyczneInfo::wersja = L"TestTest";
 WCHAR* StatyczneInfo::autor = L"TestTest";

@@ -1099,6 +1099,8 @@ void odpakuj()
 	plik.close();
 	plik_po_rozpakowaniu.close();*/
 
+	StatyczneInfo::NaglowkiDl = StatyczneInfo::plikBin[0].tellg();
+
 }
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR test, INT iCmdShow)
 {
@@ -1264,6 +1266,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR test, INT iCmdShow)
 			SendMessage(StanInstalacji, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
 
 			logoCzas = GetTickCount();
+			instalacja::hins = hInstance;
 			ins = new instalacja(systemStartBool, wszyscy, folder3, skrotPulpit, skrotMenuStart, folder2, StanInstalacji);
 			(*ins).start(hWnd);
 		}

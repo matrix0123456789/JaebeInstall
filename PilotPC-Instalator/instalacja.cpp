@@ -201,9 +201,10 @@ void instalacja::start(wstring fol)
 		WCHAR bufor[1024];
 		GetModuleFileName(NULL, bufor, 1024);
 		CopyFile(bufor, (folderStr + (L"\\uninstall.exe")).c_str(), false);
+		CopyFile(L"zlib1.dll", (folderStr + (L"\\zlib1.dll")).c_str(), false);
 		postepFaktyczny = 512;
 		fstream data1kopia;
-		data1kopia.open((wstring(wfolder) + L"\\data1.bin").c_str(), ios::binary | ios::out);
+		data1kopia.open((folderStr + (L"\\data1.bin")).c_str(), ios::binary | ios::out);
 		//zapis danych do pliku
 		char* bufdoc = new char[1];
 
@@ -386,25 +387,28 @@ void instalacja::start(wstring fol)
 		char appdata[1024];
 
 		GetEnvironmentVariableA("appdata", appdata, 1024);
+			wstring plikexe = wstring(StatyczneInfo::plikWykonywalny);
 		if (skrotPulpit)
 		{
 			wstring naz = wstring(StatyczneInfo::nazwa);
 			string Pulpit = userprofile + (string)"\\Desktop\\" + std::string(naz.begin(), naz.end());
-			string polecenie = (string)"mklink \"" + Pulpit + (string)"\" \"" + std::string(folderStr.begin(), folderStr.end()) + (string)"\\Windows.exe\"";
+			string polecenie = (string)"mklink \"" + Pulpit + (string)"\" \"" + std::string(folderStr.begin(), folderStr.end()) + string("\\")+string(plikexe.begin(), plikexe.end())+string("\"");
 			system(polecenie.c_str());
 		}
 		if (skrotMenuStart)
 		{
 			string folderMS;
-			folderMS = userprofile + (string)"\\Start Menu\\Programs\\" + std::string(wstring(StatyczneInfo::nazwa).begin(), wstring(StatyczneInfo::nazwa).end());
+			wstring assdc = wstring(StatyczneInfo::nazwa);
+			folderMS = string(userprofile) + string("\\Start Menu\\Programs\\") + std::string(assdc.begin(), assdc.end());
 			CreateDirectoryA(folderMS.c_str(), NULL);
 			wstring wstrindzek = wstring(StatyczneInfo::nazwa);
-			system(((string)"mklink \"" + folderMS + (string)"\\" + std::string(wstrindzek.begin(), wstrindzek.end()) + "\" \"" + std::string(folderStr.begin(), folderStr.end()) + (string)"\\Windows.exe\"").c_str());
+			system(((string)"mklink \"" + folderMS + (string)"\\" + std::string(wstrindzek.begin(), wstrindzek.end()) + "\" \"" + std::string(folderStr.begin(), folderStr.end()) + (string)"\\" + string(plikexe.begin(), plikexe.end()) + string("\"")).c_str());
 			//CreateLink((folderStr + (L"\\PilotPC-PC-Java.jar")).c_str(), (folderMS + (string)"\\PilotPC").c_str(), L"PilotPC - program do sterowania komputerem z poziomu telefonu", folderStr.c_str());
 			//CreateLink((folderStr + (L"\\Uninstall.exe")).c_str(), (folderMS + (string)"\\Odinstaluj").c_str(), L"Usuwa program PilotPC z tego komputera", folderStr.c_str());
-			folderMS = appdata + (string)"\\Microsoft\\Windows\\Start Menu\\Programs\\PilotPC";
+			
+			folderMS = appdata + (string("\\Microsoft\\Windows\\Start Menu\\Programs\\")) + string(assdc.begin(), assdc.end());
 			CreateDirectoryA(folderMS.c_str(), NULL);
-			system(((string)"mklink \"" + folderMS + (string)"\\" + std::string(wstrindzek.begin(), wstrindzek.end()) + "\" \"" + std::string(folderStr.begin(), folderStr.end()) + (string)"\\Windows.exe\"").c_str());
+			system(((string)"mklink \"" + folderMS + (string)"\\" + std::string(wstrindzek.begin(), wstrindzek.end()) + "\" \"" + std::string(folderStr.begin(), folderStr.end()) + (string)"\\" + string(plikexe.begin(), plikexe.end()) + string("\"")).c_str());
 			//CreateLink((folderStr + (L"\\PilotPC-PC-Java.jar")).c_str(), (folderMS + (string)"\\PilotPC").c_str(), L"PilotPC - program do sterowania komputerem z poziomu telefonu", folderStr.c_str());
 			//CreateLink((folderStr + (L"\\Uninstall.exe")).c_str(), (folderMS + (string)"\\Odinstaluj").c_str(), L"Usuwa program PilotPC z tego komputera", folderStr.c_str());
 		}
@@ -526,9 +530,10 @@ void instalacja::odinstaluj(HINSTANCE hInstance, HWND okno)
 	{
 	}
 	HKEY r, uninstall, run;
-	long blad = RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\PilotPC", 0, KEY_ALL_ACCESS, &r);
+	wstring klucz = (wstring(StatyczneInfo::autor) + wstring(StatyczneInfo::nazwa));
+	long blad = RegOpenKeyEx(HKEY_LOCAL_MACHINE, (L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"+klucz).c_str(), 0, KEY_ALL_ACCESS, &r);
 	if (blad != 0)
-		long blad = RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\PilotPC", 0, KEY_ALL_ACCESS, &r);
+		long blad = RegOpenKeyEx(HKEY_CURRENT_USER, (L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"+klucz).c_str(), 0, KEY_ALL_ACCESS, &r);
 	CHAR folderExe[1024];
 	DWORD rozmiar; //rozmiar odczytanej wartoœci(w bajtach)
 	DWORD typ_danych = REG_SZ; //zmienna na typ danych
@@ -536,7 +541,7 @@ void instalacja::odinstaluj(HINSTANCE hInstance, HWND okno)
 	string folder = ((string)folderExe).substr(0, rozmiar - 15);
 	postepFaktyczny = 9 * 1024;
 
-	system("rd /s /q %appdata%\\PilotPC-PC-Java"); 
+	//system("rd /s /q %appdata%\\PilotPC-PC-Java"); 
 	postepFaktyczny = 18 * 1024;
 	system((string("rd /s /q \"") + folder + "\"").c_str());
 	postepFaktyczny = 25 * 1024;
@@ -547,20 +552,23 @@ void instalacja::odinstaluj(HINSTANCE hInstance, HWND okno)
 	char appdata[1024];
 
 	GetEnvironmentVariableA("appdata", appdata, 1024);
-	string Pulpit = userprofile + (string)"\\Desktop\\PilotPC";
+	wstring naz = wstring(StatyczneInfo::nazwa);
+	string Pulpit = userprofile + (string)"\\Desktop\\" + std::string(naz.begin(), naz.end());
 	DeleteFileA(Pulpit.c_str());
-	system(((string)"rd /s /q \"" + userprofile + (string)"\\Start Menu\\Programs\\PilotPC\"").c_str());
-	system(((string)"rd /s /q \"" + appdata + (string)"\\Microsoft\\Windows\\Start Menu\\Programs\\PilotPC\"").c_str());
+
+	wstring assdc = wstring(StatyczneInfo::nazwa);
+	system(((string)"rd /s /q \"" + userprofile + (string)"\\Start Menu\\Programs\\" + std::string(assdc.begin(), assdc.end())+string("\"")).c_str());
+	system(((string)"rd /s /q \"" + appdata + (string)"\\Microsoft\\Windows\\Start Menu\\Programs\\" + std::string(assdc.begin(), assdc.end()) + string("\"")).c_str());
 	postepFaktyczny = 27 * 1024;
 
 	RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &run);
-	RegDeleteValue(run, L"PilotPC");
+	RegDeleteValue(run, klucz.c_str());
 	RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_ALL_ACCESS, &uninstall);
-	RegDeleteKey(uninstall, L"PilotPC");
+	RegDeleteKey(uninstall, klucz.c_str());
 	RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &run);
-	RegDeleteValue(run, L"PilotPC");
+	RegDeleteValue(run, klucz.c_str());
 	RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_ALL_ACCESS, &uninstall);
-	RegDeleteKey(uninstall, L"PilotPC");
+	RegDeleteKey(uninstall, klucz.c_str());
 	postepFaktyczny = 32 * 1024;
 	MessageBox(0, jezyk::napisy[Usunieto], L"", MB_ICONINFORMATION);
 	exit(0);

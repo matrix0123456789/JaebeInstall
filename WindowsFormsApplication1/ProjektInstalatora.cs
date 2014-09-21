@@ -13,6 +13,7 @@ namespace WindowsFormsApplication1
         public string nazwa;
         public string wersja;
         public string autor;
+        public long dzielkompr = 1024 * 64;
         public string licencja;
         public string plikWykonywalny = "";
         public string FolderDom = "";
@@ -116,22 +117,30 @@ namespace WindowsFormsApplication1
                 //strumień.Write(nazwa.Length);
                 bin.Write(nazwaf.ToCharArray(), 0, nazwaf.Length);
                 zapisano += (ulong)nazwaf.Length * 2;
-                //strumień.Flush();
-                var strRead = x.OpenRead();
-                /*var buf=new byte[strRead.Length];
-                strRead.Read(buf, 0, (int)strRead.Length);*/
-                bin.Write((long)strRead.Length);
-                zapisano += 8;
-                var z = ZLibNet.ZLibCompressor.Compress(strRead);
 
-                bin.Write((long)z.Length);
-                //bin.Flush();
-                //strumień.Write(z.Length);
-                // strumień.Flush();
-                for (long i = 0; i < z.Length; i++)
+                var strRead = x.OpenRead();
+                var plikRozm = (long)strRead.Length;
+                bin.Write(plikRozm);
+                zapisano += 8;
+                long zTeraz = 0;
+
+                while (zTeraz < plikRozm)
                 {
-                    bin.BaseStream.WriteByte((byte)z.ReadByte());
-                    zapisano++;
+                    long chwil = plikRozm - zTeraz;
+                    if (chwil > dzielkompr)
+                        chwil = dzielkompr;
+                    bin.Write((long)chwil);
+                    zapisano += 8;
+                    var bufOrg = new byte[chwil];
+                    strRead.Read(bufOrg, (int)zTeraz, (int)chwil);
+                    var z = ZLibNet.ZLibCompressor.Compress(bufOrg);
+                    bin.Write((long)z.Length);
+                    for (long i = 0; i < z.Length; i++)
+                    {
+                        bin.BaseStream.WriteByte((byte)z[i]);
+                        zapisano++;
+                    }
+                    zTeraz += chwil;
                 }
                 bin.BaseStream.Flush();
                 // strumień.BaseStream.Flush();

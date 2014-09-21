@@ -38,6 +38,7 @@ namespace WindowsFormsApplication1
             var Proje = new ProjektInstalatora();
             Proje.folderŹródłowy = FolSrc.Text;
             Proje.folderDocelowy = FolDoc.Text;
+            Proje.plikWykonywalny = textBox1.Text;
             Proje.nazwa = Nazwa.Text;
             Proje.wersja = Wersja.Text;
             Proje.autor = Autor.Text;
@@ -122,6 +123,7 @@ namespace WindowsFormsApplication1
         {
             var Proje = new ProjektInstalatora();
             Proje.folderŹródłowy = FolSrc.Text;
+            Proje.plikWykonywalny = textBox1.Text;
             Proje.folderDocelowy = System.IO.Path.GetTempPath()+"JaebeInstallTest";
             Proje.nazwa = Nazwa.Text;
             Proje.wersja = Wersja.Text;

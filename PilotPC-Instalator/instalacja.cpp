@@ -231,6 +231,7 @@ void instalacja::start(wstring fol)
 		WCHAR* nazwa = new WCHAR[32 * 1024];
 		long *dlugoscPlikOrg = new long[2];
 		long *dlugoscPlikSkompresowany = new long[2];
+		long *dlugoscChwil = new long[2];
 		//while (StatyczneInfo::plikBin[0].tellg() < StatyczneInfo::dlugoscPliku)
 		while (StatyczneInfo::otwartyPlik)
 		{
@@ -259,33 +260,7 @@ void instalacja::start(wstring fol)
 				StatyczneInfo::plikBin[0].read(((char*)dlugoscPlikOrg) + i, 1);
 			}
 			pozycja += 8;
-				ladujNastepnyPlik();
-			for (unsigned int i = 0; i < 8; i++)
-			{
-				StatyczneInfo::plikBin[0].read(((char*)dlugoscPlikSkompresowany) + i, 1);
-			}
-			pozycja += 8;
-				ladujNastepnyPlik();
-
-			unsigned long dlugosc_po_rozpakowaniu = -1;
-			Byte* bufor_docelowy = new byte[((long*)dlugoscPlikOrg)[0]];
-			Byte* buforSkompresowany = new byte[((long*)dlugoscPlikSkompresowany)[0]];
-			pozycja = StatyczneInfo::plikBin[0].tellg();
-			//czytamy plik
-			for (unsigned long i = 0; i < (dlugoscPlikSkompresowany)[0]; i++)
-			{
-				StatyczneInfo::plikBin[0].read((char*)&buforSkompresowany[i], 1);
-				pozycja++;
-				if (pozycja >= StatyczneInfo::dlugoscPliku)
-				{
-					ladujNastepnyPlik();
-					if (!StatyczneInfo::otwartyPlik)
-						break;
-				}
-			}
-
-			//rozpakowyjemy
-			uncompress((Bytef*)bufor_docelowy, (uLong*)dlugoscPlikOrg, (Bytef*)buforSkompresowany, ((long*)dlugoscPlikSkompresowany)[0]);
+			ladujNastepnyPlik();
 
 			fstream plik_po_rozpakowaniu;
 			//przygotowanie folderu
@@ -297,17 +272,55 @@ void instalacja::start(wstring fol)
 
 			//tworzenie pliku w ktorym zapiszemy rozpakowane dane
 			plik_po_rozpakowaniu.open((wstring(wfolder) + L"\\" + wstring(nazwa)).c_str(), ios::binary | ios::out);
-			//zapis danych do pliku
-			for (unsigned int i = 0; i < dlugoscPlikOrg[0]; i++)
-			{
-				plik_po_rozpakowaniu.write((char*)&bufor_docelowy[i], 1);
+			long rozpTera = 0;
+			while (rozpTera<dlugoscPlikOrg[0]){
+				for (unsigned int i = 0; i < 8; i++)
+				{
+					StatyczneInfo::plikBin[0].read(((char*)dlugoscChwil) + i, 1);
+				}
+				pozycja += 8;
+				ladujNastepnyPlik();
+				for (unsigned int i = 0; i < 8; i++)
+				{
+					StatyczneInfo::plikBin[0].read(((char*)dlugoscPlikSkompresowany) + i, 1);
+				}
+				pozycja += 8;
+				ladujNastepnyPlik();
+
+			 long dlugosc_po_rozpakowaniu = -1;
+				Byte* bufor_docelowy = new byte[((long*)dlugoscChwil)[0]];
+				Byte* buforSkompresowany = new byte[((long*)dlugoscPlikSkompresowany)[0]];
+				pozycja = StatyczneInfo::plikBin[0].tellg();
+				//czytamy plik
+				for (unsigned long i = 0; i < (dlugoscPlikSkompresowany)[0]; i++)
+				{
+					StatyczneInfo::plikBin[0].read((char*)&buforSkompresowany[i], 1);
+					pozycja++;
+					if (pozycja >= StatyczneInfo::dlugoscPliku)
+					{
+						ladujNastepnyPlik();
+						if (!StatyczneInfo::otwartyPlik)
+							break;
+					}
+				}
+
+				//rozpakowyjemy
+				uncompress((Bytef*)bufor_docelowy, (uLong*)dlugoscChwil, (Bytef*)buforSkompresowany, ((long*)dlugoscPlikSkompresowany)[0]);
+
+				
+				//zapis danych do pliku
+				for (unsigned int i = 0; i < dlugoscChwil[0]; i++)
+				{
+					plik_po_rozpakowaniu.write((char*)&bufor_docelowy[i], 1);
+				}
+			delete[] buforSkompresowany;
+			delete[] bufor_docelowy;
+			rozpTera += dlugoscChwil[0];
 			}
 			//zamykamy strumienie plikow
 			plik_po_rozpakowaniu.close();
 
 			//czyœcimy pamiêæ
-			delete[] buforSkompresowany;
-			delete[] bufor_docelowy;
 		}
 
 

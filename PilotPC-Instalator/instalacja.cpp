@@ -46,7 +46,6 @@ ret[i + i2] = a[i2];
 return ret;
 }*/
 
-HWND koniecB;
 void koniec();
 
 instalacja::instalacja(bool _systemStart, bool _wszyscy, LPCWSTR _folder, bool _skrotPulpit, bool _skrotMenuStart,  wstring _wfolder, HWND _StanInstalacji)
@@ -115,16 +114,16 @@ void __cdecl watekStart(void * Args)
 		else
 		{
 			((instalacja*)Args)[0].start(((instalacja*)Args)[0].wfolder);
-			MessageBox(((instalacja*)Args)[0].okno, jezyk::napisy[Zainstalowano], jezyk::napisy[Zainstalowano], MB_ICONINFORMATION);
-			exit(0);
+			//MessageBox(((instalacja*)Args)[0].okno, jezyk::napisy[Zainstalowano], jezyk::napisy[Zainstalowano], MB_ICONINFORMATION);
+			//exit(0);
 			koniec();
 		}
 	}
 	catch (DWORD dwError)
 	{
 		((instalacja*)Args)[0].start(((instalacja*)Args)[0].wfolder);
-		MessageBox(((instalacja*)Args)[0].okno, jezyk::napisy[Zainstalowano], jezyk::napisy[Zainstalowano], MB_ICONINFORMATION);
-		exit(0);
+		//MessageBox(((instalacja*)Args)[0].okno, jezyk::napisy[Zainstalowano], jezyk::napisy[Zainstalowano], MB_ICONINFORMATION);
+		//exit(0);
 		koniec();
 	}
 
@@ -304,9 +303,17 @@ void instalacja::start(wstring fol)
 					}
 				}
 
-				//rozpakowyjemy
-				uncompress((Bytef*)bufor_docelowy, (uLong*)dlugoscChwil, (Bytef*)buforSkompresowany, ((long*)dlugoscPlikSkompresowany)[0]);
+				if (StatyczneInfo::kompresja == Kompresja::Zlib)
+				{
 
+					//rozpakowyjemy
+					uncompress((Bytef*)bufor_docelowy, (uLong*)dlugoscChwil, (Bytef*)buforSkompresowany, ((long*)dlugoscPlikSkompresowany)[0]);
+				}
+				else
+				{
+					bufor_docelowy = buforSkompresowany;
+					dlugoscChwil = dlugoscPlikSkompresowany;
+				}
 				
 				//zapis danych do pliku
 				for (unsigned int i = 0; i < dlugoscChwil[0]; i++)
@@ -369,11 +376,11 @@ void instalacja::start(wstring fol)
 		HKEY hkProgram;
 		DWORD dwDisp;
 		if (wszyscy)
-			RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_ALL_ACCESS, &hkUninstall);
+			RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_ALL_ACCESS | KEY_WOW64_32KEY, &hkUninstall);
 		else
-			RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_ALL_ACCESS, &hkUninstall);
+			RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_ALL_ACCESS | KEY_WOW64_32KEY, &hkUninstall);
 		RegCreateKeyEx(hkUninstall, (wstring(StatyczneInfo::autor) + wstring(StatyczneInfo::nazwa)).c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
-			KEY_ALL_ACCESS, NULL, &hkProgram, &dwDisp);
+			KEY_ALL_ACCESS | KEY_WOW64_32KEY, NULL, &hkProgram, &dwDisp);
 		RegSetValueEx(hkProgram, L"DisplayName", 0, REG_SZ, (byte*)StatyczneInfo::nazwa, 14);
 		RegSetValueEx(hkProgram, L"UninstallString", 0, REG_SZ, (byte*)(folderStr + (L"\\uninstall.exe")).c_str(), 28 + 2 * folderStr.length());
 		//RegSetValueEx(hkProgram, L"URLInfoAbout", 0, REG_SZ, (byte*)L"https://github.com/FranQy/PilotPC-PC-Java", 82);
@@ -544,13 +551,17 @@ void instalacja::odinstaluj(HINSTANCE hInstance, HWND okno)
 	}
 	HKEY r, uninstall, run;
 	wstring klucz = (wstring(StatyczneInfo::autor) + wstring(StatyczneInfo::nazwa));
-	long blad = RegOpenKeyEx(HKEY_LOCAL_MACHINE, (L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"+klucz).c_str(), 0, KEY_ALL_ACCESS, &r);
+	long blad = RegOpenKeyEx(HKEY_LOCAL_MACHINE, (L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + klucz).c_str(), 0, KEY_ALL_ACCESS | KEY_WOW64_32KEY, &r);
 	if (blad != 0)
-		long blad = RegOpenKeyEx(HKEY_CURRENT_USER, (L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"+klucz).c_str(), 0, KEY_ALL_ACCESS, &r);
+		long blad = RegOpenKeyEx(HKEY_CURRENT_USER, (L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + klucz).c_str(), 0, KEY_ALL_ACCESS | KEY_WOW64_32KEY, &r);
 	CHAR folderExe[1024];
 	DWORD rozmiar; //rozmiar odczytanej wartoœci(w bajtach)
 	DWORD typ_danych = REG_SZ; //zmienna na typ danych
 	ULONG ret = RegQueryValueExA(r, "UninstallString", 0, &typ_danych, (LPBYTE)folderExe, &rozmiar);
+	if (ret != 0)
+	{
+		MessageBox(0, L"Nie znaleziono œcie¿ki do folderu", L"B³¹d", 0);
+	}
 	string folder = ((string)folderExe).substr(0, rozmiar - 15);
 	postepFaktyczny = 9 * 1024;
 
@@ -574,13 +585,13 @@ void instalacja::odinstaluj(HINSTANCE hInstance, HWND okno)
 	system(((string)"rd /s /q \"" + appdata + (string)"\\Microsoft\\Windows\\Start Menu\\Programs\\" + std::string(assdc.begin(), assdc.end()) + string("\"")).c_str());
 	postepFaktyczny = 27 * 1024;
 
-	RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &run);
+	RegOpenKeyEx(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS | KEY_WOW64_32KEY, &run);
 	RegDeleteValue(run, klucz.c_str());
-	RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_ALL_ACCESS, &uninstall);
+	RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_ALL_ACCESS | KEY_WOW64_32KEY, &uninstall);
 	RegDeleteKey(uninstall, klucz.c_str());
-	RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS, &run);
+	RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_ALL_ACCESS | KEY_WOW64_32KEY, &run);
 	RegDeleteValue(run, klucz.c_str());
-	RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_ALL_ACCESS, &uninstall);
+	RegOpenKeyEx(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_ALL_ACCESS | KEY_WOW64_32KEY, &uninstall);
 	RegDeleteKey(uninstall, klucz.c_str());
 	postepFaktyczny = 32 * 1024;
 	MessageBox(0, jezyk::napisy[Usunieto], L"", MB_ICONINFORMATION);
@@ -661,9 +672,9 @@ Cleanup:
 	return fIsRunAsAdmin;
 }void koniec()
 {
-	HFONT PilotPCCzcionka = CreateFont(20, 0, 0, 0, 0, 0, 0, 0, 0, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 0, L"Segoe UI");
-	koniecB = CreateWindowEx(0, L"BUTTON", L"Zainstalowano, kliknij by zakoñczyæ", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
-		451, 180, 448, 220, koniecB, (HMENU)2000, instalacja::hins, NULL);
-	SendMessage(koniecB, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
+	StatyczneInfo::koniec = true;
+	
+	CreateWindowEx(0, L"BUTTON", L"Zainstalowano, kliknij by zakoñczyæ", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
+		0, 0, 450, 650, StatyczneInfo::okno, (HMENU)4000, instalacja::hins, NULL);
 }
 HINSTANCE instalacja::hins;

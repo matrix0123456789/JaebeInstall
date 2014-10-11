@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -6,6 +7,7 @@ using System.Windows.Forms;
 namespace WindowsFormsApplication1
 {
     enum NaglowekTypy : byte { nazwa = 1, licencja }
+    enum Kompresja:byte{Brak,Zlib}
     class ProjektInstalatora
     {
         public string folderDocelowy = "";
@@ -17,6 +19,21 @@ namespace WindowsFormsApplication1
         public string licencja;
         public string plikWykonywalny = "";
         public string FolderDom = "";
+        public Kompresja kompresja=Kompresja.Zlib;
+        public class plik
+        {
+            public FileInfo x;
+            public string path;
+
+
+            public plik(FileInfo x, string path)
+            {
+                // TODO: Complete member initialization
+                this.x = x;
+                this.path = path;
+            }
+        }
+        List<plik> all = new List<plik>();
         public void zapisz(bool czyPrawdziwe)
         {
             for (int i = folderDocelowy.IndexOf('\\', 3); i > 0; i = folderDocelowy.IndexOf('\\', i + 1))
@@ -31,6 +48,7 @@ namespace WindowsFormsApplication1
             if (czyPrawdziwe)
                 Form1.ProgressMax = liczPliki(new DirectoryInfo(folderŹródłowy));
 
+            bin.Write((byte)kompresja.GetHashCode());
             //zapisywanie metadanych
             bin.Write(nazwa.Length * 2 + 4 + wersja.Length * 2 + 4 + autor.Length * 2 + 4 + licencja.Length * 2 + 4 + plikWykonywalny.Length * 2 + 4 + FolderDom.Length * 2 + 4);
             bin.Write(nazwa.Length * 2);
@@ -70,6 +88,11 @@ namespace WindowsFormsApplication1
             zapisano = (ulong)(nazwa.Length * 2 + 4 + wersja.Length * 2 + 4 + autor.Length * 2 + 4 + licencja.Length * 2 + 4 + plikWykonywalny.Length * 2 + 4 + FolderDom.Length * 2 + 4 + 4);
             if (czyPrawdziwe)
                 zapiszFolder(new DirectoryInfo(folderŹródłowy), "");
+            foreach(var x in all)
+            {
+                dodajPlik(x);
+            }
+
             //bin.Write(0);
             bin.Close();
             // strumień.Close();
@@ -77,12 +100,12 @@ namespace WindowsFormsApplication1
             {
                 System.IO.File.Copy("install.exe", folderDocelowy + "\\install.exe", true);
             }
-            catch { MessageBox.Show("Błąd", "Nie można znaleźć pliku install.exe", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch { MessageBox.Show("Nie można skopiować pliku install.exe", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error); }
             try
             {
                 System.IO.File.Copy("zlib1.dll", folderDocelowy + "\\zlib1.dll", true);
             }
-            catch { MessageBox.Show("Błąd", "Nie można znaleźć pliku zlib1.dll", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch { MessageBox.Show("Nie można skopiować pliku zlib1.dll", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 
 
         }
@@ -110,41 +133,9 @@ namespace WindowsFormsApplication1
                     Form1.Progress++;
                     continue;
                 }
-                var nazwaf = path + x.Name;
-                bin.Write(nazwaf.Length * 2);
-                zapisano += 4;
-                //bin.Flush();
-                //strumień.Write(nazwa.Length);
-                bin.Write(nazwaf.ToCharArray(), 0, nazwaf.Length);
-                zapisano += (ulong)nazwaf.Length * 2;
-
-                var strRead = x.OpenRead();
-                var plikRozm = (long)strRead.Length;
-                bin.Write(plikRozm);
-                zapisano += 8;
-                long zTeraz = 0;
-
-                while (zTeraz < plikRozm)
-                {
-                    long chwil = plikRozm - zTeraz;
-                    if (chwil > dzielkompr)
-                        chwil = dzielkompr;
-                    bin.Write((long)chwil);
-                    zapisano += 8;
-                    var bufOrg = new byte[chwil];
-                    strRead.Read(bufOrg, (int)zTeraz, (int)chwil);
-                    var z = ZLibNet.ZLibCompressor.Compress(bufOrg);
-                    bin.Write((long)z.Length);
-                    for (long i = 0; i < z.Length; i++)
-                    {
-                        bin.BaseStream.WriteByte((byte)z[i]);
-                        zapisano++;
-                    }
-                    zTeraz += chwil;
-                }
-                bin.BaseStream.Flush();
-                // strumień.BaseStream.Flush();
-                Form1.Progress++;
+                var p = new plik(x, path);
+                all.Add(p);
+               
             }
             var foldery = folder.GetDirectories();
             foreach (var x in foldery)
@@ -153,7 +144,49 @@ namespace WindowsFormsApplication1
 
             }
         }
+        void dodajPlik(plik p)
+        {
+            var nazwaf = p.path + p.x.Name;
+            bin.Write(nazwaf.Length * 2);
+            zapisano += 4;
+            //bin.Flush();
+            //strumień.Write(nazwa.Length);
+            bin.Write(nazwaf.ToCharArray(), 0, nazwaf.Length);
+            zapisano += (ulong)nazwaf.Length * 2;
 
+            var strRead = p.x.OpenRead();
+            var plikRozm = (long)strRead.Length;
+            bin.Write(plikRozm);
+            zapisano += 8;
+            long zTeraz = 0;
+
+            while (zTeraz < plikRozm)
+            {
+                long chwil = plikRozm - zTeraz;
+                if (chwil > dzielkompr)
+                    chwil = dzielkompr;
+                bin.Write((long)chwil);
+                zapisano += 8;
+                var bufOrg = new byte[chwil];
+                strRead.Read(bufOrg, 0, (int)chwil);
+                byte[] z;
+                if (kompresja == Kompresja.Zlib) { 
+                 z = ZLibNet.ZLibCompressor.Compress(bufOrg);
+            }
+                else 
+                {
+                    z = bufOrg;
+                }
+                bin.Write((long)z.Length);
+
+                bin.BaseStream.Write(z, 0, z.Length);
+                zapisano += (ulong)z.Length;
+                zTeraz += chwil;
+            }
+            bin.BaseStream.Flush();
+            // strumień.BaseStream.Flush();
+            Form1.Progress++;
+        }
         public ulong coIleDziel = long.MaxValue;
         ulong zapisano = 0;
         ulong aktData = 0;

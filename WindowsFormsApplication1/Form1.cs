@@ -37,12 +37,20 @@ namespace WindowsFormsApplication1
 
             var Proje = new ProjektInstalatora();
             Proje.folderŹródłowy = FolSrc.Text;
+            if (czyKompresja.Checked)
+                Proje.kompresja = Kompresja.Zlib;
+            else
+                Proje.kompresja = Kompresja.Brak;
             Proje.folderDocelowy = FolDoc.Text;
             Proje.plikWykonywalny = textBox1.Text;
-            Proje.nazwa = Nazwa.Text;
+            Proje.nazwa = textBox2.Text;
             Proje.wersja = Wersja.Text;
             Proje.autor = Autor.Text;
             Proje.licencja = Licencja.Text;
+            try{
+                Proje.dzielkompr = Int32.Parse(Kompr.Text) * 1024;
+            }
+                catch{}
             if (checkObrazek.Checked)
                 Proje.Obrazek = ObrPole.Text;
             try
@@ -54,9 +62,9 @@ namespace WindowsFormsApplication1
             Proje.FolderDom = FolDom.Text;
             var wątek = new Thread((o) =>
             {
-
+                DateTime start = DateTime.Now;
                 Proje.zapisz(true);
-                MessageBox.Show("Gotowe!");
+                MessageBox.Show("Gotowe!\r\nCzas: "+(DateTime.Now-start).TotalSeconds+"s");
             });
             wątek.Start();
         }
@@ -76,7 +84,7 @@ namespace WindowsFormsApplication1
             else
             {
                 FolDom.Enabled = false;
-                FolDom.Text = "C:\\Program Files\\" + Autor.Text + "\\" + Nazwa.Text;
+                FolDom.Text = "C:\\Program Files\\" + Autor.Text + "\\" + textBox2.Text;
             }
         }
 
@@ -125,7 +133,7 @@ namespace WindowsFormsApplication1
             Proje.folderŹródłowy = FolSrc.Text;
             Proje.plikWykonywalny = textBox1.Text;
             Proje.folderDocelowy = System.IO.Path.GetTempPath()+"JaebeInstallTest";
-            Proje.nazwa = Nazwa.Text;
+            Proje.nazwa = textBox2.Text;
             Proje.wersja = Wersja.Text;
             Proje.autor = Autor.Text;
             Proje.licencja = Licencja.Text;

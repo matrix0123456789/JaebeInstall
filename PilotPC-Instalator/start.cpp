@@ -96,10 +96,18 @@ int* logoRandom = new int[20000];
 HBITMAP Checkbox2;
 VOID OnPaint(HDC hdc)
 {
+		RECT prost;
+	if (StatyczneInfo::koniec)
+	{
+		prost.left = 1;
+		prost.top = 150;
+		prost.right = 448;
+		prost.bottom = 300;
+		FillRect(hdc, &prost, ciemnyTlo);
+	}
+	else
+		logoAni(hdc);
 
-	logoAni(hdc);
-
-	RECT prost;
 	prost.left = 0;
 	prost.top = 500;
 	prost.right = 450;
@@ -156,11 +164,11 @@ void wyswietl(HINSTANCE hInstance)
 	animacjaCzas = GetTickCount();
 	/*LicencjaTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
 		SS_LEFT, 475, 130, 400, 300, hWnd, NULL, hInstance, NULL);
-	SendMessage(LicencjaTxt, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
-	SetWindowText(LicencjaTxt, StatyczneInfo::licencja);
-	LicencjaZaakceptuj = CreateWindowEx(0, L"BUTTON", jezyk::napisy[Zaakceptuj], WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
+		SendMessage(LicencjaTxt, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
+		SetWindowText(LicencjaTxt, StatyczneInfo::licencja);
+		LicencjaZaakceptuj = CreateWindowEx(0, L"BUTTON", jezyk::napisy[Zaakceptuj], WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 		451, 500, 448, 149, hWnd, (HMENU)2002, hInstance, NULL);
-	SendMessage(LicencjaZaakceptuj, WM_SETFONT, (WPARAM)PilotPCCzcionka2, 0);*/
+		SendMessage(LicencjaZaakceptuj, WM_SETFONT, (WPARAM)PilotPCCzcionka2, 0);*/
 }
 HWND JavaTxt, JavaTakB, JavaNieB;
 int* animowane = new int[1024, 5];
@@ -294,9 +302,9 @@ void rysujStałe(HINSTANCE hInstance)
 	HFONT JaebeCzcionkaCopy = CreateFont(12, 6, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, L"Arial");
 
 	if (StatyczneInfo::obrazek == NULL){
-	HWND JaebeTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
-		SS_LEFT, 65, 10, 449 - 165, 50, hWnd, NULL, hInstance, NULL);
-	SendMessage(JaebeTxt, WM_SETFONT, (WPARAM)JaebeCzcionka, 0);
+		HWND JaebeTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
+			SS_LEFT, 65, 10, 449 - 165, 50, hWnd, NULL, hInstance, NULL);
+		SendMessage(JaebeTxt, WM_SETFONT, (WPARAM)JaebeCzcionka, 0);
 
 		SetWindowText(JaebeTxt, StatyczneInfo::autor);
 		//CopyTxt = CreateWindowEx(0, L"STATIC", NULL, WS_CHILD | WS_VISIBLE |
@@ -384,7 +392,7 @@ void drawButtonRed(HDC hDC, UINT itemState, HWND hwnd, HBRUSH zaznaczone, HBRUSH
 	if (StatyczneInfo::obrazek != NULL)
 	{
 
-		if (hwnd == przyciskMin&&StatyczneInfo::obrazekInfo.bmiHeader.biWidth>399)
+		if (hwnd == przyciskMin&&StatyczneInfo::obrazekInfo.bmiHeader.biWidth > 399)
 		{
 			HDC hdcNowy = CreateCompatibleDC(hDC);
 			HBITMAP hbmOld = (HBITMAP)SelectObject(hdcNowy, StatyczneInfo::obrazek);
@@ -392,7 +400,7 @@ void drawButtonRed(HDC hDC, UINT itemState, HWND hwnd, HBRUSH zaznaczone, HBRUSH
 			BitBlt(hDC, 0, 0, StatyczneInfo::obrazekInfo.bmiHeader.biWidth, StatyczneInfo::obrazekInfo.bmiHeader.biHeight, hdcNowy, 399, 0, SRCCOPY);
 
 		}
-		if (hwnd == przyciskX&&StatyczneInfo::obrazekInfo.bmiHeader.biWidth>424)
+		if (hwnd == przyciskX&&StatyczneInfo::obrazekInfo.bmiHeader.biWidth > 424)
 		{
 
 			HDC hdcNowy = CreateCompatibleDC(hDC);
@@ -422,7 +430,9 @@ void drawButtonRed(DRAWITEMSTRUCT *dis, HWND hwnd, HBRUSH zaznaczone, HBRUSH nie
 	drawButtonRed(dis->hDC, dis->itemState, hwnd, zaznaczone, niezaznaczone, txt, Txtlen, 450, 650, NULL);
 }
 void logoAni(HDC hdc){
-	if (ins != NULL||instalacja::odinstal)
+	//if (StatyczneInfo::koniec)
+	//	return;
+	if (ins != NULL || instalacja::odinstal)
 		instalacja::postepAnim = instalacja::postepAnim + (instalacja::postepFaktyczny - instalacja::postepAnim) / 50;
 	if (logoCzas != 0 && narysowane != (*ins).postepAnim * 1200 / (32 * 1024))
 	{
@@ -479,6 +489,26 @@ VOID CALLBACK TimerProc(
 	_In_  DWORD dwTime
 	)
 {
+	if (StatyczneInfo::koniec)
+	{
+		//drawButtonRed(GetDC(StatyczneInfo::koniecB), 0, StatyczneInfo::koniecB, ciemnyTlo5, ciemnyTlo4B, jezyk::napisy[Zainstalowano], stringDlugosc(jezyk::napisy[Zainstalowano]), 448, 220, PilotPCCzcionka);
+		RECT r;
+		HDC hd = GetDC(hwnd);
+		r.left = 1;
+		r.top = 270;
+		r.right = 448;
+		r.bottom = 310;
+		//FillRect(GetDC(hwnd), &r, ciemnyTlo3);
+		HFONT PilotPCCzcionka = CreateFont(20, 0, 0, 0, 0, 0, 0, 0, 0, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, 0, L"Segoe UI");
+		SelectFont(hd, PilotPCCzcionka);
+		SelectBrush(hd, ciemnyTlo);
+		SetTextColor(hd, RGB(255, 255, 255));
+		SetBkColor(hd, RGB(47, 47, 49));
+		SendMessage(hwnd, WM_SETFONT, (WPARAM)PilotPCCzcionka, 0);
+		DrawText(hd, L"Zainstalowano, kliknij by zakończyć!", -1, &r, DT_CENTER);
+
+		//return;
+	}
 	float czas = (float)(GetTickCount() - animacjaCzas) * 2;
 	int przes = (int)(0.00045*czas*czas - 0.9*czas);
 	/*if (przes >= 0)
@@ -625,16 +655,16 @@ VOID CALLBACK TimerProc(
 		/*if (PrzyciskStan[4] == 1)
 		{
 
-			drawButtonRed(GetDC(LicencjaZaakceptuj), 0, LicencjaZaakceptuj, ciemnyTlo2, ciemnyTlo3B, jezyk::napisy[Zaakceptuj], stringDlugosc(jezyk::napisy[Zaakceptuj]), 448, 149, PilotPCCzcionka2);
+		drawButtonRed(GetDC(LicencjaZaakceptuj), 0, LicencjaZaakceptuj, ciemnyTlo2, ciemnyTlo3B, jezyk::napisy[Zaakceptuj], stringDlugosc(jezyk::napisy[Zaakceptuj]), 448, 149, PilotPCCzcionka2);
 
 		}
 		else
 		{
-			drawButtonRed(GetDC(LicencjaZaakceptuj), 0, LicencjaZaakceptuj, ciemnyTlo2, ciemnyTlo3, jezyk::napisy[Zaakceptuj], stringDlugosc(jezyk::napisy[Zaakceptuj]), 448, 149, PilotPCCzcionka2);
+		drawButtonRed(GetDC(LicencjaZaakceptuj), 0, LicencjaZaakceptuj, ciemnyTlo2, ciemnyTlo3, jezyk::napisy[Zaakceptuj], stringDlugosc(jezyk::napisy[Zaakceptuj]), 448, 149, PilotPCCzcionka2);
 
 		}*/
 	}
-	if (nrAni > 2 )
+	if (nrAni > 2)
 	{
 		//MoveWindow(LicencjaZaakceptuj, 1 + przes, 500, 448, 149, true);
 		//MoveWindow(LicencjaTxt, 25 + przes, 130, 400, 300, true);
@@ -679,7 +709,7 @@ VOID CALLBACK TimerProc(
 
 		}
 	}
-	if (nrAni > 3 )
+	if (nrAni > 3)
 	{
 		//MoveWindow(JavaNieB, 1 + przes, 400, 448, 100, true);
 		//MoveWindow(JavaTakB, 1 + przes, 180, 448, 220, true);
@@ -761,12 +791,12 @@ VOID CALLBACK TimerProc(
 		/*if (nrAni == 3)
 		{
 
-			RECT prost;
-			prost.left = 0;
-			prost.top = 500;
-			prost.right = 450;
-			prost.bottom = 650;
-			FillRect(GetDC(hWnd), &prost, ciemnyTlo3);
+		RECT prost;
+		prost.left = 0;
+		prost.top = 500;
+		prost.right = 450;
+		prost.bottom = 650;
+		FillRect(GetDC(hWnd), &prost, ciemnyTlo3);
 		}
 		nrAni = 0;*/
 	}
@@ -942,7 +972,7 @@ void odpakuj()
 	StatyczneInfo::dlugoscPliku = StatyczneInfo::plikBin[0].tellg();
 	StatyczneInfo::plikBin[0].seekg(0, ios::beg);
 
-
+	StatyczneInfo::plikBin[0].read((char*)&StatyczneInfo::kompresja, 1);
 	//tworzenie bufora do ktorego wczytamy plik
 	char *dlugoscNagłówka = new char[4];
 
@@ -1032,7 +1062,7 @@ void odpakuj()
 	unsigned long *dlugoscObrOrg = new unsigned long[8];
 	for (unsigned int i = 0; i < 8; i++)
 	{
-		StatyczneInfo::plikBin[0].read(((char*)dlugoscObrOrg)+i, 1);
+		StatyczneInfo::plikBin[0].read(((char*)dlugoscObrOrg) + i, 1);
 	}
 	unsigned long *dlugoscObr = new unsigned long[8];
 	for (unsigned int i = 0; i < 8; i++)
@@ -1174,7 +1204,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR test, INT iCmdShow)
 		NULL);                    // creation parameters
 	//SendMessage(hWnd, WM_CTLCOLORSTATIC, g_hBrush, 0);
 	ShowWindow(hWnd, iCmdShow);
-
+	StatyczneInfo::okno = hWnd;
 	UpdateWindow(hWnd);
 
 	SetTimer(hWnd, 1, 10, TimerProc);
@@ -1379,6 +1409,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 	HDC          hdc;
 	PAINTSTRUCT  ps;
 
+	if (StatyczneInfo::koniec && ( message == WM_LBUTTONDOWN))
+	{
+		exit(0);
+	}
 	int xPos, yPos;
 	switch (message)
 	{
@@ -1484,7 +1518,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 			case BTNRED: MessageBox(hWnd, L"Red Button Pressed", L"Red", MB_OK); break;
 			case BTNBLUE: MessageBox(hWnd, L"Blue Button Pressed", L"Blue", MB_OK); break;
 			}*/
-
+			if (StatyczneInfo::koniec)
+			{
+				exit(0);
+			}
+			else
 			if ((HWND)lParam == g_hPrzycisk)
 			{
 				DWORD dlugosc = GetWindowTextLength(folder);

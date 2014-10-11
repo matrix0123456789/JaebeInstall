@@ -15,3 +15,4 @@ C:\Users\Mateusz\Documents\GitHub\JaebeInstal\WindowsFormsApplication1\obj\Debug
 C:\Users\Mateusz\Documents\GitHub\JaebeInstal\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.csproj.GenerateResource.Cache
 C:\Users\Mateusz\Documents\GitHub\JaebeInstal\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe
 C:\Users\Mateusz\Documents\GitHub\JaebeInstal\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.pdb
+C:\Users\Mateusz\Documents\GitHub\JaebeInstal\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.csprojResolveAssemblyReference.cache

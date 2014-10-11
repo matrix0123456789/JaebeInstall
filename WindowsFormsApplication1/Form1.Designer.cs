@@ -36,7 +36,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.Nazwa = new System.Windows.Forms.TextBox();
+            this.Kompr = new System.Windows.Forms.TextBox();
             this.Wersja = new System.Windows.Forms.TextBox();
             this.Autor = new System.Windows.Forms.TextBox();
             this.Licencja = new System.Windows.Forms.TextBox();
@@ -52,6 +52,9 @@
             this.ObrPole = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.czyKompresja = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // FolSrc
@@ -130,16 +133,16 @@
             this.label5.TabIndex = 5;
             this.label5.Text = "Autor";
             // 
-            // Nazwa
+            // Kompr
             // 
-            this.Nazwa.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.Kompr.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.Nazwa.Location = new System.Drawing.Point(161, 81);
-            this.Nazwa.Name = "Nazwa";
-            this.Nazwa.Size = new System.Drawing.Size(536, 20);
-            this.Nazwa.TabIndex = 7;
-            this.Nazwa.Text = "Program";
-            this.Nazwa.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.Kompr.Location = new System.Drawing.Point(161, 237);
+            this.Kompr.Name = "Kompr";
+            this.Kompr.Size = new System.Drawing.Size(455, 20);
+            this.Kompr.TabIndex = 7;
+            this.Kompr.Text = "64";
+            this.Kompr.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // Wersja
             // 
@@ -167,10 +170,10 @@
             this.Licencja.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.Licencja.Location = new System.Drawing.Point(161, 262);
+            this.Licencja.Location = new System.Drawing.Point(161, 289);
             this.Licencja.Multiline = true;
             this.Licencja.Name = "Licencja";
-            this.Licencja.Size = new System.Drawing.Size(536, 146);
+            this.Licencja.Size = new System.Drawing.Size(536, 119);
             this.Licencja.TabIndex = 10;
             this.Licencja.Text = "Zabrania się kopiowania etc.";
             // 
@@ -236,7 +239,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 268);
+            this.label6.Location = new System.Drawing.Point(6, 292);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(47, 13);
             this.label6.TabIndex = 17;
@@ -253,7 +256,7 @@
             // checkObrazek
             // 
             this.checkObrazek.AutoSize = true;
-            this.checkObrazek.Location = new System.Drawing.Point(9, 239);
+            this.checkObrazek.Location = new System.Drawing.Point(2, 265);
             this.checkObrazek.Name = "checkObrazek";
             this.checkObrazek.Size = new System.Drawing.Size(66, 17);
             this.checkObrazek.TabIndex = 19;
@@ -266,7 +269,7 @@
             this.ObrPole.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ObrPole.Enabled = false;
-            this.ObrPole.Location = new System.Drawing.Point(161, 236);
+            this.ObrPole.Location = new System.Drawing.Point(161, 263);
             this.ObrPole.Name = "ObrPole";
             this.ObrPole.Size = new System.Drawing.Size(441, 20);
             this.ObrPole.TabIndex = 20;
@@ -274,7 +277,7 @@
             // button2
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button2.Location = new System.Drawing.Point(608, 236);
+            this.button2.Location = new System.Drawing.Point(608, 262);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(89, 20);
             this.button2.TabIndex = 21;
@@ -293,11 +296,45 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
+            // textBox2
+            // 
+            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox2.Location = new System.Drawing.Point(161, 77);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(536, 20);
+            this.textBox2.TabIndex = 23;
+            this.textBox2.Text = "Program";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(6, 240);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(128, 13);
+            this.label9.TabIndex = 24;
+            this.label9.Text = "Ustawienie kompresji (kB)";
+            // 
+            // czyKompresja
+            // 
+            this.czyKompresja.AutoSize = true;
+            this.czyKompresja.Checked = true;
+            this.czyKompresja.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.czyKompresja.Location = new System.Drawing.Point(622, 239);
+            this.czyKompresja.Name = "czyKompresja";
+            this.czyKompresja.Size = new System.Drawing.Size(75, 17);
+            this.czyKompresja.TabIndex = 25;
+            this.czyKompresja.Text = "Kompresuj";
+            this.czyKompresja.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(709, 442);
+            this.Controls.Add(this.czyKompresja);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this.textBox2);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.ObrPole);
@@ -313,7 +350,7 @@
             this.Controls.Add(this.Licencja);
             this.Controls.Add(this.Autor);
             this.Controls.Add(this.Wersja);
-            this.Controls.Add(this.Nazwa);
+            this.Controls.Add(this.Kompr);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
@@ -342,7 +379,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox Nazwa;
+        private System.Windows.Forms.TextBox Kompr;
         private System.Windows.Forms.TextBox Wersja;
         private System.Windows.Forms.TextBox Autor;
         private System.Windows.Forms.TextBox Licencja;
@@ -358,6 +395,9 @@
         private System.Windows.Forms.TextBox ObrPole;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.CheckBox czyKompresja;
     }
 }
 
